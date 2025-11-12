@@ -214,7 +214,7 @@ export function EmployeeDashboard() {
 
       {/* Game Dialog */}
       <Dialog open={gameDialogOpen} onOpenChange={setGameDialogOpen}>
-        <DialogContent className="max-w-4xl">
+        <DialogContent className="max-w-[95vw] sm:max-w-4xl md:max-w-5xl lg:max-w-6xl">
           <DialogHeader>
             <DialogTitle>
               {selectedGame === "slots" && "🎰 Slots"}

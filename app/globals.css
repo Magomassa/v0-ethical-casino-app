@@ -122,3 +122,41 @@
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes slot-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes lever-pull {
+  0% {
+    transform: rotate(0deg) translateY(0);
+  }
+  25% {
+    transform: rotate(15deg) translateY(2px);
+  }
+  50% {
+    transform: rotate(25deg) translateY(5px);
+  }
+  75% {
+    transform: rotate(15deg) translateY(2px);
+  }
+  100% {
+    transform: rotate(0deg) translateY(0);
+  }
+}
+
+.animate-lever-pull {
+  animation: lever-pull 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  transform-origin: bottom center; /* 👈 punto de pivote en la base */
+}
+
+
+.animate-lever-pull {
+  animation: lever-pull 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  transform-origin: bottom center;
+}
