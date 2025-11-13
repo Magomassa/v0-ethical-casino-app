@@ -9,7 +9,8 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { login, register } from "@/lib/auth"
-import { Sparkles } from "lucide-react"
+import { Sparkles } from 'lucide-react'
+import { ThemeToggle } from "./theme-toggle"
 
 export function AuthForm({ onSuccess }: { onSuccess: () => void }) {
   const [loginEmail, setLoginEmail] = useState("")
@@ -42,6 +43,10 @@ export function AuthForm({ onSuccess }: { onSuccess: () => void }) {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-secondary/10 p-4">
+      <div className="fixed top-4 right-4">
+        <ThemeToggle />
+      </div>
+
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="space-y-2 text-center">
           <div className="flex justify-center mb-2">
@@ -91,9 +96,10 @@ export function AuthForm({ onSuccess }: { onSuccess: () => void }) {
                 </Button>
               </form>
               <div className="mt-4 p-3 bg-muted rounded-lg text-sm space-y-1">
-                <p className="font-medium">Demo:</p>
+                <p className="font-medium">Credenciales Demo:</p>
                 <p>Admin: admin@motivaplay.com / admin123</p>
                 <p>Empleado: empleado@motivaplay.com / empleado123</p>
+                <p>Amiga: amiga@motivaplay.com / amiga123</p>
               </div>
             </TabsContent>
 

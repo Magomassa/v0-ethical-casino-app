@@ -35,10 +35,12 @@ export const register = (email: string, password: string): User | null => {
 
   const newUser: User = {
     id: Date.now().toString(),
+    name: email.split("@")[0], // Extract name from email
     email,
     password,
     role: "employee",
     tokens: 100, // Starting tokens
+    department: "General",
     createdAt: new Date().toISOString(),
   }
 
