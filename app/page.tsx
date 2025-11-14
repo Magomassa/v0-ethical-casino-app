@@ -12,15 +12,12 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    console.log('[v0] Setting up auth listener...')
     const unsubscribe = onAuthChange((currentUser) => {
-      console.log('[v0] Auth changed:', currentUser ? `User ${currentUser.email}` : 'No user')
       setUser(currentUser)
       setLoading(false)
     })
 
     const timeout = setTimeout(() => {
-      console.log('[v0] Auth listener timeout, forcing loading to false')
       setLoading(false)
     }, 5000)
 
@@ -31,17 +28,10 @@ export default function Home() {
   }, [])
 
   const refreshUser = () => {
-    // Firebase handles state automatically, just wait for listener
     setLoading(true)
   }
 
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-lg">Cargando...</div>
-      </div>
-    )
-  }
+
 
   if (!user) {
     return <AuthForm onSuccess={refreshUser} />

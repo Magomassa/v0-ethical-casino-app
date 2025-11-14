@@ -6,9 +6,7 @@ import { loginUser, logoutUser, registerUser, getCurrentFirebaseUser } from "./f
 
 export const getCurrentUser = async (): Promise<User | null> => {
   if (typeof window === "undefined") return null
-  console.log('[v0] Getting current user...')
   const user = await getCurrentFirebaseUser()
-  console.log('[v0] Current user result:', user ? user.email : 'null')
   return user
 }
 
@@ -18,9 +16,7 @@ export const setCurrentUser = (user: User | null) => {
 
 export const login = async (email: string, password: string): Promise<User | null> => {
   try {
-    console.log('[v0] Login attempt for:', email)
     const user = await loginUser(email, password)
-    console.log('[v0] Login successful:', user.email)
     return user
   } catch (error) {
     console.error("[v0] Login failed:", error)
@@ -58,24 +54,18 @@ export const updateUserTokens = async (userId: string, tokens: number) => {
 }
 
 export const onAuthChange = (callback: (user: User | null) => void) => {
-  console.log('[v0] Setting up onAuthChange listener')
   return onAuthStateChanged(auth, async (firebaseUser) => {
-    console.log('[v0] Auth state changed, firebaseUser:', firebaseUser ? firebaseUser.uid : 'null')
     if (firebaseUser) {
-      console.log('[v0] Fetching user doc from Firestore...')
       try {
         const userDoc = await getDoc(doc(db, "users", firebaseUser.uid))
-        console.log('[v0] User doc exists:', userDoc.exists())
         if (userDoc.exists()) {
           const userData = userDoc.data() as User
           const fullUser = {
             ...userData,
             id: userDoc.id
           }
-          console.log('[v0] Calling callback with user:', fullUser.email)
           callback(fullUser)
         } else {
-          console.log('[v0] User doc does not exist, calling callback with null')
           callback(null)
         }
       } catch (error) {
@@ -83,7 +73,6 @@ export const onAuthChange = (callback: (user: User | null) => void) => {
         callback(null)
       }
     } else {
-      console.log('[v0] No firebaseUser, calling callback with null')
       callback(null)
     }
   })
