@@ -49,16 +49,21 @@ export function AIMotivator({ userName, tokens }: { userName: string; tokens: nu
   if (!isVisible) return null
 
   return (
-    <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/5">
-      <CardContent className="flex items-start gap-3 p-4">
-        <div className="bg-primary text-primary-foreground p-2 rounded-lg shrink-0">
-          <Sparkles className="h-5 w-5" />
+    <Card className="relative overflow-hidden rounded-3xl border border-primary/30 bg-gradient-to-r from-secondary/30 via-background/70 to-secondary/20 shadow-gold">
+      <div className="absolute inset-0 opacity-40 blur-2xl bg-[radial-gradient(circle_at_20%_20%,rgba(249,200,81,0.25),transparent_55%),radial-gradient(circle_at_80%_40%,rgba(12,143,120,0.25),transparent_55%)]" />
+      <CardContent className="relative flex items-start gap-4 p-6">
+        <div className="bg-primary/90 text-primary-foreground p-3 rounded-2xl shrink-0 shadow-gold">
+          <Sparkles className="h-6 w-6" />
         </div>
-        <div className="flex-1">
-          <p className="text-sm font-medium text-balance">{message}</p>
-          <p className="text-xs text-muted-foreground mt-1">MotivaAI - Tu asistente motivacional</p>
+        <div className="flex-1 space-y-2">
+          <p className="text-base font-semibold leading-relaxed text-pretty">{message}</p>
+          <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">MotivaAI · Tu asistente motivacional</p>
         </div>
-        <button onClick={() => setIsVisible(false)} className="text-muted-foreground hover:text-foreground text-xs">
+        <button
+          onClick={() => setIsVisible(false)}
+          className="text-muted-foreground hover:text-primary text-sm transition-colors"
+          aria-label="Ocultar mensaje motivacional"
+        >
           ✕
         </button>
       </CardContent>

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
+import { soundManager } from "@/lib/sounds"
 
 type Card = { suit: string; value: string; numValue: number }
 
@@ -81,6 +82,7 @@ export function BlackjackGame({
     const deck = createDeck()
     const newHand = [...playerHand, deck[0]]
     setPlayerHand(newHand)
+    soundManager.play("click")
 
     const score = calculateScore(newHand)
     if (score > 21) {
@@ -109,18 +111,23 @@ export function BlackjackGame({
 
     if (playerScore > 21) {
       setResult(`Te pasaste! Perdiste ${bet} fichas`)
+      soundManager.play("lose")
       onGameEnd(-bet)
     } else if (dealerScore > 21) {
       setResult(`¡Dealer se pasó! Ganaste ${bet * 2} fichas`)
+      soundManager.play("win")
       onGameEnd(bet * 2)
     } else if (playerScore > dealerScore) {
       setResult(`¡Ganaste! +${bet * 2} fichas`)
+      soundManager.play("win")
       onGameEnd(bet * 2)
     } else if (playerScore < dealerScore) {
       setResult(`Perdiste ${bet} fichas`)
+      soundManager.play("lose")
       onGameEnd(-bet)
     } else {
       setResult("Empate! Recuperas tu apuesta")
+      soundManager.play("coin")
       onGameEnd(0)
     }
   }

@@ -1,0 +1,29 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">MotivaPlay Icon</title>
+  <desc id="desc">Isotipo circular estilo ficha de casino con las iniciales MP</desc>
+  <defs>
+    <radialGradient id="iconBg" cx="50%" cy="42%" r="60%">
+      <stop offset="0%" stop-color="#173b82" />
+      <stop offset="100%" stop-color="#04112c" />
+    </radialGradient>
+    <linearGradient id="iconGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffe7a3" />
+      <stop offset="45%" stop-color="#f9c851" />
+      <stop offset="100%" stop-color="#d18c2d" />
+    </linearGradient>
+    <linearGradient id="iconTeal" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1cb4a1" />
+      <stop offset="100%" stop-color="#0a6f83" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="124" fill="url(#iconBg)" />
+  <g transform="translate(256 256)">
+    <circle r="178" fill="none" stroke="url(#iconGold)" stroke-width="14" />
+    <circle r="132" fill="none" stroke="url(#iconTeal)" stroke-width="22" stroke-dasharray="62 32" stroke-linecap="round" opacity="0.9" />
+    <circle r="162" fill="none" stroke="url(#iconGold)" stroke-width="22" stroke-dasharray="32 36" stroke-linecap="round" opacity="0.75" />
+    <text text-anchor="middle" dominant-baseline="central" font-family="'Kanit','Montserrat','Segoe UI',sans-serif" font-size="150" font-weight="800" fill="url(#iconGold)">
+      MP
+    </text>
+  </g>
+</svg>
+

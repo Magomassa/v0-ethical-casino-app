@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
+import { soundManager } from "@/lib/sounds"
 
 const symbols = ["🍒", "🍋", "🍊", "🍇", "⭐", "💎"]
 
@@ -27,6 +28,7 @@ export function SlotsGame({
 
     setSpinning(true)
     setResult("")
+    soundManager.play("spin")
 
     // Animate spinning
     const spinInterval = setInterval(() => {
@@ -35,6 +37,7 @@ export function SlotsGame({
         symbols[Math.floor(Math.random() * symbols.length)],
         symbols[Math.floor(Math.random() * symbols.length)],
       ])
+      soundManager.play("spin")
     }, 100)
 
     setTimeout(() => {
@@ -52,14 +55,17 @@ export function SlotsGame({
         // Three of a kind
         const winAmount = bet * 10
         setResult(`¡GANASTE! +${winAmount} fichas`)
+        soundManager.play("win")
         onGameEnd(winAmount)
       } else if (finalReels[0] === finalReels[1] || finalReels[1] === finalReels[2]) {
         // Two of a kind
         const winAmount = bet * 2
         setResult(`¡Par! +${winAmount} fichas`)
+        soundManager.play("win")
         onGameEnd(winAmount)
       } else {
         setResult(`Perdiste ${bet} fichas`)
+        soundManager.play("lose")
         onGameEnd(-bet)
       }
     }, 2000)
