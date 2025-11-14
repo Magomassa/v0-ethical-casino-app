@@ -26,7 +26,7 @@ import {
   type Mission,
   type MissionSubmission,
 } from "@/lib/storage"
-import { Target, Coins, Clock, CheckCircle2, XCircle, AlertCircle } from "lucide-react"
+import { Target, Coins, Clock, CheckCircle2, XCircle, AlertCircle } from 'lucide-react'
 
 interface EmployeeMissionsProps {
   userId: string
@@ -38,10 +38,27 @@ export function EmployeeMissions({ userId }: EmployeeMissionsProps) {
   const [selectedMission, setSelectedMission] = useState<Mission | null>(null)
   const [submitDialogOpen, setSubmitDialogOpen] = useState(false)
   const [filterType, setFilterType] = useState<string>("all")
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    setMissions(getMissions().filter((m) => m.active))
-    setSubmissions(getMissionSubmissions().filter((s) => s.userId === userId))
+    const loadData = async () => {
+      try {
+        setLoading(true)
+        const allMissions = await getMissions()
+        const allSubmissions = await getMissionSubmissions()
+        
+        setMissions(allMissions.filter((m) => m.active))
+        setSubmissions(allSubmissions.filter((s) => s.userId === userId))
+      } catch (error) {
+        console.error("[v0] Error loading missions:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    if (userId) {
+      loadData()
+    }
   }, [userId])
 
   const getUserSubmissionsForMission = (missionId: string) => {
@@ -55,26 +72,31 @@ export function EmployeeMissions({ userId }: EmployeeMissionsProps) {
     return true
   }
 
-  const handleSubmitMission = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmitMission = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!selectedMission) return
 
-    const formData = new FormData(e.currentTarget)
-    const newSubmission: MissionSubmission = {
-      id: Date.now().toString(),
-      missionId: selectedMission.id,
-      userId,
-      evidenceUrl: formData.get("evidenceUrl") as string,
-      evidenceText: formData.get("evidenceText") as string,
-      status: "pending",
-      createdAt: new Date().toISOString(),
-    }
+    try {
+      const formData = new FormData(e.currentTarget)
+      const newSubmission: MissionSubmission = {
+        id: Date.now().toString(),
+        missionId: selectedMission.id,
+        userId,
+        evidenceUrl: formData.get("evidenceUrl") as string,
+        evidenceText: formData.get("evidenceText") as string,
+        status: "pending",
+        createdAt: new Date().toISOString(),
+      }
 
-    const updatedSubmissions = [...getMissionSubmissions(), newSubmission]
-    saveMissionSubmissions(updatedSubmissions)
-    setSubmissions(updatedSubmissions.filter((s) => s.userId === userId))
-    setSubmitDialogOpen(false)
-    setSelectedMission(null)
+      const currentSubmissions = await getMissionSubmissions()
+      const updatedSubmissions = [...currentSubmissions, newSubmission]
+      await saveMissionSubmissions(updatedSubmissions)
+      setSubmissions(updatedSubmissions.filter((s) => s.userId === userId))
+      setSubmitDialogOpen(false)
+      setSelectedMission(null)
+    } catch (error) {
+      console.error("[v0] Error submitting mission:", error)
+    }
   }
 
   const openSubmitDialog = (mission: Mission) => {
@@ -83,6 +105,14 @@ export function EmployeeMissions({ userId }: EmployeeMissionsProps) {
   }
 
   const filteredMissions = filterType === "all" ? missions : missions.filter((m) => m.type === filterType)
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-12">
+        <p className="text-muted-foreground">Cargando misiones...</p>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">

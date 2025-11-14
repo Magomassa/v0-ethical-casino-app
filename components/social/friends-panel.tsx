@@ -8,25 +8,27 @@ import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
-  getUsers,
-  getFriendships,
-  getFriendRequests,
-  saveFriendRequests,
-  saveFriendships,
-  getDonations,
-  saveDonations,
-  getTransactions,
-  saveTransactions,
-  getWeekNumber,
-  type User,
-  type Friendship,
-  type FriendRequest,
-  type Donation,
-  type Transaction,
-} from "@/lib/storage"
-import { updateUserTokens } from "@/lib/auth"
+  getAllUsers,
+  getUserFriendships,
+  getUserFriendRequests,
+  createFriendRequest,
+  updateFriendRequest,
+  createFriendship,
+  createDonation,
+  getUserDonations,
+  createTransaction,
+  updateUser,
+  getUser,
+} from "@/lib/firebase/db"
+import type { User, Friendship, FriendRequest, Donation } from "@/lib/storage"
 import { UserPlus, Users, Gift, Check, X, Coins } from 'lucide-react'
 import { toast } from "@/hooks/use-toast"
+
+const getWeekNumber = (date: Date): number => {
+  const firstDayOfYear = new Date(date.getFullYear(), 0, 1)
+  const pastDaysOfYear = (date.getTime() - firstDayOfYear.getTime()) / 86400000
+  return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7)
+}
 
 interface FriendsPanelProps {
   currentUserId: string
@@ -41,26 +43,40 @@ export function FriendsPanel({ currentUserId }: FriendsPanelProps) {
   const [donateDialog, setDonateDialog] = useState(false)
   const [selectedFriend, setSelectedFriend] = useState<User | null>(null)
   const [donateAmount, setDonateAmount] = useState(0)
+  const [loading, setLoading] = useState(true)
+  const [currentUser, setCurrentUser] = useState<User | null>(null)
 
   useEffect(() => {
+    if (!currentUserId) {
+      console.error("[v0] FriendsPanel: currentUserId is undefined")
+      return
+    }
     loadData()
-  }, [])
+  }, [currentUserId])
 
-  const loadData = () => {
-    console.log("[v0] Loading friends data for user:", currentUserId)
-    const allUsers = getUsers()
-    const allFriendships = getFriendships()
-    const allRequests = getFriendRequests()
-    const allDonations = getDonations()
+  const loadData = async () => {
+    if (!currentUserId) return
     
-    console.log("[v0] All users:", allUsers)
-    console.log("[v0] All friendships:", allFriendships)
-    console.log("[v0] All friend requests:", allRequests)
-    
-    setUsers(allUsers)
-    setFriendships(allFriendships)
-    setFriendRequests(allRequests)
-    setDonations(allDonations)
+    setLoading(true)
+    try {
+      const [allUsers, allFriendships, allRequests, allDonations, userData] = await Promise.all([
+        getAllUsers(),
+        getUserFriendships(currentUserId),
+        getUserFriendRequests(currentUserId),
+        getUserDonations(currentUserId),
+        getUser(currentUserId),
+      ])
+      
+      setUsers(allUsers)
+      setFriendships(allFriendships)
+      setFriendRequests(allRequests)
+      setDonations(allDonations)
+      setCurrentUser(userData)
+    } catch (error) {
+      console.error("[v0] Error loading friends data:", error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const myFriends = friendships
@@ -75,17 +91,14 @@ export function FriendsPanel({ currentUserId }: FriendsPanelProps) {
 
   const sentRequests = friendRequests.filter((r) => r.fromUserId === currentUserId && r.status === "pending")
 
-  const handleSendRequest = () => {
-    console.log("[v0] Searching for user with email:", searchEmail)
+  const handleSendRequest = async () => {
     const targetUser = users.find((u) => u.email === searchEmail && u.role === "employee" && u.id !== currentUserId)
-    console.log("[v0] Target user found:", targetUser)
     
     if (!targetUser) {
       toast({ title: "Error", description: "Usuario no encontrado o no es empleado", variant: "destructive" })
       return
     }
 
-    // Check if already friends
     const alreadyFriends = friendships.some(
       (f) =>
         (f.user1Id === currentUserId && f.user2Id === targetUser.id) ||
@@ -96,7 +109,6 @@ export function FriendsPanel({ currentUserId }: FriendsPanelProps) {
       return
     }
 
-    // Check if request already exists
     const existingRequest = friendRequests.find(
       (r) =>
         ((r.fromUserId === currentUserId && r.toUserId === targetUser.id) ||
@@ -108,61 +120,61 @@ export function FriendsPanel({ currentUserId }: FriendsPanelProps) {
       return
     }
 
-    const newRequest: FriendRequest = {
-      id: Date.now().toString(),
-      fromUserId: currentUserId,
-      toUserId: targetUser.id,
-      status: "pending",
-      createdAt: new Date().toISOString(),
-    }
+    try {
+      await createFriendRequest({
+        fromUserId: currentUserId,
+        toUserId: targetUser.id,
+        status: "pending",
+        createdAt: new Date().toISOString(),
+      })
 
-    const updated = [...friendRequests, newRequest]
-    saveFriendRequests(updated)
-    setFriendRequests(updated)
-    setSearchEmail("")
-    toast({ title: "Éxito", description: "Solicitud enviada" })
+      await loadData()
+      setSearchEmail("")
+      toast({ title: "Éxito", description: "Solicitud enviada" })
+    } catch (error) {
+      console.error("[v0] Error sending request:", error)
+      toast({ title: "Error", description: "No se pudo enviar la solicitud", variant: "destructive" })
+    }
   }
 
-  const handleAcceptRequest = (requestId: string) => {
+  const handleAcceptRequest = async (requestId: string) => {
     const request = friendRequests.find((r) => r.id === requestId)
     if (!request) return
 
-    // Update request status
-    const updatedRequests = friendRequests.map((r) => (r.id === requestId ? { ...r, status: "accepted" as const } : r))
-    saveFriendRequests(updatedRequests)
-    setFriendRequests(updatedRequests)
+    try {
+      await updateFriendRequest(requestId, { status: "accepted" })
+      await createFriendship({
+        user1Id: request.fromUserId,
+        user2Id: request.toUserId,
+        createdAt: new Date().toISOString(),
+      })
 
-    // Create friendship
-    const newFriendship: Friendship = {
-      id: Date.now().toString(),
-      user1Id: request.fromUserId,
-      user2Id: request.toUserId,
-      createdAt: new Date().toISOString(),
+      await loadData()
+      toast({ title: "Éxito", description: "Solicitud aceptada" })
+    } catch (error) {
+      console.error("[v0] Error accepting request:", error)
+      toast({ title: "Error", description: "No se pudo aceptar la solicitud", variant: "destructive" })
     }
-    const updatedFriendships = [...friendships, newFriendship]
-    saveFriendships(updatedFriendships)
-    setFriendships(updatedFriendships)
-
-    toast({ title: "Éxito", description: "Solicitud aceptada" })
   }
 
-  const handleRejectRequest = (requestId: string) => {
-    const updatedRequests = friendRequests.map((r) => (r.id === requestId ? { ...r, status: "rejected" as const } : r))
-    saveFriendRequests(updatedRequests)
-    setFriendRequests(updatedRequests)
-    toast({ title: "Solicitud rechazada", description: "La solicitud ha sido rechazada" })
+  const handleRejectRequest = async (requestId: string) => {
+    try {
+      await updateFriendRequest(requestId, { status: "rejected" })
+      await loadData()
+      toast({ title: "Solicitud rechazada", description: "La solicitud ha sido rechazada" })
+    } catch (error) {
+      console.error("[v0] Error rejecting request:", error)
+    }
   }
 
-  const handleDonate = () => {
-    if (!selectedFriend || donateAmount <= 0) return
+  const handleDonate = async () => {
+    if (!selectedFriend || donateAmount <= 0 || !currentUser) return
 
-    const currentUser = users.find((u) => u.id === currentUserId)
-    if (!currentUser || currentUser.tokens < donateAmount) {
+    if (currentUser.tokens < donateAmount) {
       toast({ title: "Error", description: "Fichas insuficientes", variant: "destructive" })
       return
     }
 
-    // Check weekly limit
     const currentWeek = getWeekNumber(new Date())
     const weekDonations = donations.filter((d) => d.fromUserId === currentUserId && d.weekNumber === currentWeek)
     const weekTotal = weekDonations.reduce((sum, d) => sum + d.amount, 0)
@@ -176,55 +188,57 @@ export function FriendsPanel({ currentUserId }: FriendsPanelProps) {
       return
     }
 
-    // Create donation
-    const newDonation: Donation = {
-      id: Date.now().toString(),
-      fromUserId: currentUserId,
-      toUserId: selectedFriend.id,
-      amount: donateAmount,
-      date: new Date().toISOString(),
-      weekNumber: currentWeek,
+    try {
+      await createDonation({
+        fromUserId: currentUserId,
+        toUserId: selectedFriend.id,
+        amount: donateAmount,
+        date: new Date().toISOString(),
+        weekNumber: currentWeek,
+      })
+
+      await createTransaction({
+        userId: currentUserId,
+        type: "debit",
+        amount: donateAmount,
+        source: "donation",
+        description: `Donación a ${selectedFriend.name}`,
+        date: new Date().toISOString(),
+      })
+
+      await createTransaction({
+        userId: selectedFriend.id,
+        type: "credit",
+        amount: donateAmount,
+        source: "donation",
+        description: `Donación de ${currentUser.name}`,
+        date: new Date().toISOString(),
+      })
+
+      await updateUser(currentUserId, { tokens: currentUser.tokens - donateAmount })
+      await updateUser(selectedFriend.id, { tokens: selectedFriend.tokens + donateAmount })
+
+      toast({ title: "Éxito", description: `Has donado ${donateAmount} fichas a ${selectedFriend.name}` })
+      setDonateDialog(false)
+      setDonateAmount(0)
+      await loadData()
+    } catch (error) {
+      console.error("[v0] Error donating:", error)
+      toast({ title: "Error", description: "No se pudo completar la donación", variant: "destructive" })
     }
-
-    const updatedDonations = [...donations, newDonation]
-    saveDonations(updatedDonations)
-    setDonations(updatedDonations)
-
-    // Create transactions
-    const transactions = getTransactions()
-    const debitTransaction: Transaction = {
-      id: Date.now().toString(),
-      userId: currentUserId,
-      type: "debit",
-      amount: donateAmount,
-      source: "donation",
-      description: `Donación a ${selectedFriend.name}`,
-      date: new Date().toISOString(),
-    }
-    const creditTransaction: Transaction = {
-      id: (Date.now() + 1).toString(),
-      userId: selectedFriend.id,
-      type: "credit",
-      amount: donateAmount,
-      source: "donation",
-      description: `Donación de ${currentUser.name}`,
-      date: new Date().toISOString(),
-    }
-    saveTransactions([...transactions, debitTransaction, creditTransaction])
-
-    // Update tokens
-    updateUserTokens(currentUserId, currentUser.tokens - donateAmount)
-    updateUserTokens(selectedFriend.id, selectedFriend.tokens + donateAmount)
-
-    toast({ title: "Éxito", description: `Has donado ${donateAmount} fichas a ${selectedFriend.name}` })
-    setDonateDialog(false)
-    setDonateAmount(0)
-    loadData()
   }
 
   const currentWeek = getWeekNumber(new Date())
   const weekDonations = donations.filter((d) => d.fromUserId === currentUserId && d.weekNumber === currentWeek)
   const weekTotal = weekDonations.reduce((sum, d) => sum + d.amount, 0)
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="text-sm text-muted-foreground">Cargando amigos...</div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -245,7 +259,6 @@ export function FriendsPanel({ currentUserId }: FriendsPanelProps) {
         </TabsList>
 
         <TabsContent value="friends" className="space-y-4">
-          {/* Weekly donation status */}
           <Card>
             <CardHeader>
               <CardTitle className="text-sm flex items-center gap-2">
@@ -368,13 +381,12 @@ export function FriendsPanel({ currentUserId }: FriendsPanelProps) {
         </TabsContent>
       </Tabs>
 
-      {/* Donate Dialog */}
       <Dialog open={donateDialog} onOpenChange={setDonateDialog}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Donar fichas a {selectedFriend?.name}</DialogTitle>
             <DialogDescription>
-              Puedes donar hasta {Math.min(200 - weekTotal, users.find((u) => u.id === currentUserId)?.tokens || 0)}{" "}
+              Puedes donar hasta {Math.min(200 - weekTotal, currentUser?.tokens || 0)}{" "}
               fichas esta semana
             </DialogDescription>
           </DialogHeader>
@@ -384,7 +396,7 @@ export function FriendsPanel({ currentUserId }: FriendsPanelProps) {
               <Input
                 type="number"
                 min="1"
-                max={Math.min(200 - weekTotal, users.find((u) => u.id === currentUserId)?.tokens || 0)}
+                max={Math.min(200 - weekTotal, currentUser?.tokens || 0)}
                 value={donateAmount}
                 onChange={(e) => setDonateAmount(Number.parseInt(e.target.value))}
                 placeholder="Ingresa cantidad"

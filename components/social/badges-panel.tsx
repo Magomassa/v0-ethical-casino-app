@@ -4,8 +4,9 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { getAchievements, getAchievementTemplates, type Achievement, type AchievementTemplate } from "@/lib/storage"
-import { Award, Star, Trophy } from "lucide-react"
+import { getUserAchievements, getAllAchievementTemplates } from "@/lib/firebase/db"
+import type { Achievement, AchievementTemplate } from "@/lib/storage"
+import { Award, Star, Trophy } from 'lucide-react'
 
 interface BadgesPanelProps {
   userId: string
@@ -14,11 +15,33 @@ interface BadgesPanelProps {
 export function BadgesPanel({ userId }: BadgesPanelProps) {
   const [templates, setTemplates] = useState<AchievementTemplate[]>([])
   const [achievements, setAchievements] = useState<Achievement[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    setTemplates(getAchievementTemplates())
-    setAchievements(getAchievements().filter((a) => a.userId === userId))
+    if (!userId) {
+      console.error("[v0] BadgesPanel: userId is undefined")
+      return
+    }
+    loadData()
   }, [userId])
+
+  const loadData = async () => {
+    if (!userId) return
+    
+    setLoading(true)
+    try {
+      const [allTemplates, userAchievements] = await Promise.all([
+        getAllAchievementTemplates(),
+        getUserAchievements(userId),
+      ])
+      setTemplates(allTemplates)
+      setAchievements(userAchievements)
+    } catch (error) {
+      console.error("[v0] Error loading badges data:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const getBadgeRank = (templateId: string): "bronze" | "silver" | "gold" | "platinum" | null => {
     const template = templates.find((t) => t.id === templateId)
@@ -54,6 +77,14 @@ export function BadgesPanel({ userId }: BadgesPanelProps) {
       default:
         return "bg-muted"
     }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="text-sm text-muted-foreground">Cargando insignias...</div>
+      </div>
+    )
   }
 
   return (

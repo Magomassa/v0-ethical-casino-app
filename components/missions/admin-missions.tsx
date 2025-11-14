@@ -34,7 +34,7 @@ import {
   type Transaction,
 } from "@/lib/storage"
 import { updateUserTokens } from "@/lib/auth"
-import { Plus, CheckCircle2, XCircle, ExternalLink, Coins, Calendar } from "lucide-react"
+import { Plus, CheckCircle2, XCircle, ExternalLink, Coins, Calendar } from 'lucide-react'
 
 export function AdminMissions() {
   const [missions, setMissions] = useState<Mission[]>([])
@@ -43,35 +43,56 @@ export function AdminMissions() {
   const [reviewDialog, setReviewDialog] = useState(false)
   const [selectedSubmission, setSelectedSubmission] = useState<MissionSubmission | null>(null)
   const [filterStatus, setFilterStatus] = useState<string>("all")
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    setMissions(getMissions())
-    setSubmissions(getMissionSubmissions())
+    const loadData = async () => {
+      try {
+        setLoading(true)
+        const [allMissions, allSubmissions] = await Promise.all([
+          getMissions(),
+          getMissionSubmissions()
+        ])
+        
+        setMissions(allMissions)
+        setSubmissions(allSubmissions)
+      } catch (error) {
+        console.error("[v0] Error loading data:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    loadData()
   }, [])
 
-  const handleCreateMission = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleCreateMission = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const formData = new FormData(e.currentTarget)
+    
+    try {
+      const formData = new FormData(e.currentTarget)
+      const tags = (formData.get("tags") as string).split(",").map((t) => t.trim())
 
-    const tags = (formData.get("tags") as string).split(",").map((t) => t.trim())
+      const newMission: Mission = {
+        id: Date.now().toString(),
+        title: formData.get("title") as string,
+        type: formData.get("type") as Mission["type"],
+        description: formData.get("description") as string,
+        tokenReward: Number.parseInt(formData.get("tokenReward") as string),
+        evidenceRequired: formData.get("evidenceRequired") === "on",
+        endAt: formData.get("endAt") ? (formData.get("endAt") as string) : undefined,
+        active: true,
+        tags,
+        maxPerUser: Number.parseInt(formData.get("maxPerUser") as string),
+      }
 
-    const newMission: Mission = {
-      id: Date.now().toString(),
-      title: formData.get("title") as string,
-      type: formData.get("type") as Mission["type"],
-      description: formData.get("description") as string,
-      tokenReward: Number.parseInt(formData.get("tokenReward") as string),
-      evidenceRequired: formData.get("evidenceRequired") === "on",
-      endAt: formData.get("endAt") ? (formData.get("endAt") as string) : undefined,
-      active: true,
-      tags,
-      maxPerUser: Number.parseInt(formData.get("maxPerUser") as string),
+      const updatedMissions = [...missions, newMission]
+      await saveMissions(updatedMissions)
+      setMissions(updatedMissions)
+      setNewMissionDialog(false)
+    } catch (error) {
+      console.error("[v0] Error creating mission:", error)
     }
-
-    const updatedMissions = [...missions, newMission]
-    saveMissions(updatedMissions)
-    setMissions(updatedMissions)
-    setNewMissionDialog(false)
   }
 
   const handleReviewSubmission = (submission: MissionSubmission) => {
@@ -79,85 +100,99 @@ export function AdminMissions() {
     setReviewDialog(true)
   }
 
-  const handleApproveSubmission = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleApproveSubmission = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!selectedSubmission) return
 
-    const formData = new FormData(e.currentTarget)
-    const reviewNotes = formData.get("reviewNotes") as string
+    try {
+      const formData = new FormData(e.currentTarget)
+      const reviewNotes = formData.get("reviewNotes") as string
 
-    // Get mission for token reward
-    const mission = missions.find((m) => m.id === selectedSubmission.missionId)
-    if (!mission) return
+      const mission = missions.find((m) => m.id === selectedSubmission.missionId)
+      if (!mission) return
 
-    // Update submission
-    const updatedSubmissions = getMissionSubmissions().map((s) =>
-      s.id === selectedSubmission.id
-        ? {
-            ...s,
-            status: "approved" as const,
-            reviewNotes,
-            reviewedAt: new Date().toISOString(),
-          }
-        : s,
-    )
-    saveMissionSubmissions(updatedSubmissions)
-    setSubmissions(updatedSubmissions)
+      const currentSubmissions = await getMissionSubmissions()
+      const updatedSubmissions = currentSubmissions.map((s) =>
+        s.id === selectedSubmission.id
+          ? {
+              ...s,
+              status: "approved" as const,
+              reviewNotes,
+              reviewedAt: new Date().toISOString(),
+            }
+          : s,
+      )
+      await saveMissionSubmissions(updatedSubmissions)
+      setSubmissions(updatedSubmissions)
 
-    // Award tokens
-    const users = getUsers()
-    const user = users.find((u) => u.id === selectedSubmission.userId)
-    if (user) {
-      updateUserTokens(user.id, user.tokens + mission.tokenReward)
+      const users = await getUsers()
+      const user = users.find((u) => u.id === selectedSubmission.userId)
+      if (user) {
+        await updateUserTokens(user.id, user.tokens + mission.tokenReward)
 
-      // Create transaction
-      const transactions = getTransactions()
-      const newTransaction: Transaction = {
-        id: Date.now().toString(),
-        userId: user.id,
-        type: "credit",
-        amount: mission.tokenReward,
-        source: "mission",
-        sourceRef: selectedSubmission.id,
-        description: `Misión aprobada: ${mission.title}`,
-        date: new Date().toISOString(),
+        const transactions = await getTransactions()
+        const newTransaction: Transaction = {
+          id: Date.now().toString(),
+          userId: user.id,
+          type: "credit",
+          amount: mission.tokenReward,
+          source: "mission",
+          sourceRef: selectedSubmission.id,
+          description: `Misión aprobada: ${mission.title}`,
+          date: new Date().toISOString(),
+        }
+        transactions.push(newTransaction)
+        await saveTransactions(transactions)
       }
-      transactions.push(newTransaction)
-      saveTransactions(transactions)
-    }
 
-    setReviewDialog(false)
-    setSelectedSubmission(null)
+      setReviewDialog(false)
+      setSelectedSubmission(null)
+    } catch (error) {
+      console.error("[v0] Error approving submission:", error)
+    }
   }
 
-  const handleRejectSubmission = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleRejectSubmission = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!selectedSubmission) return
 
-    const formData = new FormData(e.currentTarget)
-    const reviewNotes = formData.get("reviewNotes") as string
+    try {
+      const formData = new FormData(e.currentTarget)
+      const reviewNotes = formData.get("reviewNotes") as string
 
-    const updatedSubmissions = getMissionSubmissions().map((s) =>
-      s.id === selectedSubmission.id
-        ? {
-            ...s,
-            status: "rejected" as const,
-            reviewNotes,
-            reviewedAt: new Date().toISOString(),
-          }
-        : s,
-    )
-    saveMissionSubmissions(updatedSubmissions)
-    setSubmissions(updatedSubmissions)
+      const currentSubmissions = await getMissionSubmissions()
+      const updatedSubmissions = currentSubmissions.map((s) =>
+        s.id === selectedSubmission.id
+          ? {
+              ...s,
+              status: "rejected" as const,
+              reviewNotes,
+              reviewedAt: new Date().toISOString(),
+            }
+          : s,
+      )
+      await saveMissionSubmissions(updatedSubmissions)
+      setSubmissions(updatedSubmissions)
 
-    setReviewDialog(false)
-    setSelectedSubmission(null)
+      setReviewDialog(false)
+      setSelectedSubmission(null)
+    } catch (error) {
+      console.error("[v0] Error rejecting submission:", error)
+    }
   }
 
   const filteredSubmissions =
     filterStatus === "all" ? submissions : submissions.filter((s) => s.status === filterStatus)
 
   const pendingCount = submissions.filter((s) => s.status === "pending").length
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-12">
+        <p className="text-muted-foreground">Cargando misiones...</p>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -457,15 +492,14 @@ export function AdminMissions() {
                     type="button"
                     variant="destructive"
                     className="flex-1 gap-2"
-                    onClick={(e) => {
+                    onClick={async (e) => {
                       const form = e.currentTarget.closest("form")
                       if (form) {
-                        const formData = new FormData(form)
                         const fakeEvent = {
                           preventDefault: () => {},
                           currentTarget: form,
                         } as React.FormEvent<HTMLFormElement>
-                        handleRejectSubmission(fakeEvent)
+                        await handleRejectSubmission(fakeEvent)
                       }
                     }}
                   >

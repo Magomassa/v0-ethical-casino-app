@@ -20,31 +20,30 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { getCurrentUser, logout } from "@/lib/auth"
+import { logout } from "@/lib/auth"
 import {
-  getUsers,
-  getPrizes,
-  savePrizes,
-  getAchievements,
-  saveAchievements,
-  getRedemptions,
-  getAchievementTemplates,
-  saveAchievementTemplates,
-  type Prize,
-  type Achievement,
-  type User,
-  type AchievementTemplate,
-} from "@/lib/storage"
-import { Users, Gift, Trophy, LogOut, Plus, Sparkles, History, Target, Edit, Settings } from "lucide-react"
+  getAllUsers,
+  getAllPrizes,
+  getUserAchievements,
+  getAllRedemptions,
+  getAllAchievementTemplates,
+  createPrize,
+  updatePrize,
+  createAchievement,
+  updateAchievementTemplate,
+  updateUser,
+  createTransaction,
+} from "@/lib/firebase/db"
+import type { Prize, Achievement, User, AchievementTemplate, Redemption } from "@/lib/storage"
+import { Users, Gift, Trophy, LogOut, Plus, Sparkles, History, Target, Edit, Settings } from 'lucide-react'
 import { ThemeToggle } from "./theme-toggle"
 import { AdminMissions } from "./missions/admin-missions"
 
-export function AdminDashboard() {
-  const [user, setUser] = useState(getCurrentUser())
+export function AdminDashboard({ user: adminUser, onLogout }: { user: User; onLogout: () => void }) {
   const [users, setUsers] = useState<User[]>([])
   const [prizes, setPrizes] = useState<Prize[]>([])
   const [achievements, setAchievements] = useState<Achievement[]>([])
-  const [redemptions, setRedemptions] = useState<any[]>([])
+  const [redemptions, setRedemptions] = useState<Redemption[]>([])
   const [templates, setTemplates] = useState<AchievementTemplate[]>([])
   const [newPrizeDialog, setNewPrizeDialog] = useState(false)
   const [newAchievementDialog, setNewAchievementDialog] = useState(false)
@@ -53,40 +52,66 @@ export function AdminDashboard() {
   const [editingPrize, setEditingPrize] = useState<Prize | null>(null)
   const [editingTemplate, setEditingTemplate] = useState<AchievementTemplate | null>(null)
   const [activeTab, setActiveTab] = useState("employees")
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    setUsers(getUsers())
-    setPrizes(getPrizes())
-    setAchievements(getAchievements())
-    setRedemptions(getRedemptions())
-    setTemplates(getAchievementTemplates())
+    const loadData = async () => {
+      try {
+        const [usersData, prizesData, templatesData, redemptionsData] = await Promise.all([
+          getAllUsers(),
+          getAllPrizes(),
+          getAllAchievementTemplates(),
+          getAllRedemptions(),
+        ])
+
+        const allAchievements: Achievement[] = []
+        for (const user of usersData) {
+          const userAchievements = await getUserAchievements(user.id)
+          allAchievements.push(...userAchievements)
+        }
+
+        setUsers(usersData)
+        setPrizes(prizesData)
+        setTemplates(templatesData)
+        setRedemptions(redemptionsData)
+        setAchievements(allAchievements)
+      } catch (error) {
+        console.error("[v0] Error loading data:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadData()
   }, [])
 
-  const handleLogout = () => {
-    logout()
-    window.location.reload()
+  const handleLogout = async () => {
+    await logout()
+    onLogout()
   }
 
-  const handleCreatePrize = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleCreatePrize = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
 
-    const newPrize: Prize = {
-      id: Date.now().toString(),
-      name: formData.get("name") as string,
-      description: formData.get("description") as string,
-      cost: Number.parseInt(formData.get("cost") as string),
-      image: `/placeholder.svg?height=200&width=200&query=${encodeURIComponent(formData.get("name") as string)}`,
-      available: true,
-    }
+    try {
+      const newPrize: Omit<Prize, "id"> = {
+        name: formData.get("name") as string,
+        description: formData.get("description") as string,
+        cost: Number.parseInt(formData.get("cost") as string),
+        image: `/placeholder.svg?height=200&width=200&query=${encodeURIComponent(formData.get("name") as string)}`,
+        available: true,
+      }
 
-    const updatedPrizes = [...prizes, newPrize]
-    savePrizes(updatedPrizes)
-    setPrizes(updatedPrizes)
-    setNewPrizeDialog(false)
+      await createPrize(newPrize)
+      const updatedPrizes = await getAllPrizes()
+      setPrizes(updatedPrizes)
+      setNewPrizeDialog(false)
+    } catch (error) {
+      console.error("[v0] Error creating prize:", error)
+    }
   }
 
-  const handleEditPrize = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleEditPrize = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!editingPrize) return
 
@@ -94,68 +119,102 @@ export function AdminDashboard() {
     const discount = formData.get("discount") ? Number.parseInt(formData.get("discount") as string) : undefined
     const newCost = Number.parseInt(formData.get("cost") as string)
 
-    const updatedPrize: Prize = {
-      ...editingPrize,
-      name: formData.get("name") as string,
-      description: formData.get("description") as string,
-      cost: discount ? Math.round(newCost * (1 - discount / 100)) : newCost,
-      originalCost: discount ? newCost : undefined,
-      discount,
-      label: (formData.get("label") as string) || undefined,
-    }
+    try {
+      const updatedData: Partial<Prize> = {
+        name: formData.get("name") as string,
+        description: formData.get("description") as string,
+        cost: discount ? Math.round(newCost * (1 - discount / 100)) : newCost,
+        originalCost: discount ? newCost : undefined,
+        discount,
+        label: (formData.get("label") as string) || undefined,
+      }
 
-    const updatedPrizes = prizes.map((p) => (p.id === editingPrize.id ? updatedPrize : p))
-    savePrizes(updatedPrizes)
-    setPrizes(updatedPrizes)
-    setEditPrizeDialog(false)
-    setEditingPrize(null)
+      await updatePrize(editingPrize.id, updatedData)
+      const updatedPrizes = await getAllPrizes()
+      setPrizes(updatedPrizes)
+      setEditPrizeDialog(false)
+      setEditingPrize(null)
+    } catch (error) {
+      console.error("[v0] Error updating prize:", error)
+    }
   }
 
-  const handleCreateAchievement = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleCreateAchievement = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
     const templateId = formData.get("templateId") as string
+    const userId = formData.get("userId") as string
     const template = templates.find((t) => t.id === templateId)
     if (!template) return
 
-    const newAchievement: Achievement = {
-      id: Date.now().toString(),
-      userId: formData.get("userId") as string,
-      templateId: template.id,
-      title: template.title,
-      description: template.description,
-      tokensAwarded: template.reward,
-      date: new Date().toISOString(),
-      count: 1,
-    }
+    try {
+      const newAchievement: Omit<Achievement, "id"> = {
+        userId,
+        templateId: template.id,
+        title: template.title,
+        description: template.description,
+        tokensAwarded: template.reward,
+        date: new Date().toISOString(),
+        count: 1,
+      }
 
-    const updatedAchievements = [...achievements, newAchievement]
-    saveAchievements(updatedAchievements)
-    setAchievements(updatedAchievements)
-    setNewAchievementDialog(false)
+      await createAchievement(newAchievement)
+
+      const user = users.find((u) => u.id === userId)
+      if (user) {
+        await updateUser(userId, { tokens: user.tokens + template.reward })
+        await createTransaction({
+          userId,
+          type: "credit",
+          amount: template.reward,
+          source: "achievement",
+          sourceRef: template.id,
+          description: `Logro: ${template.title}`,
+          date: new Date().toISOString(),
+        })
+      }
+
+      const updatedAchievements = await getUserAchievements(userId)
+      setAchievements([...achievements, ...updatedAchievements])
+      setNewAchievementDialog(false)
+    } catch (error) {
+      console.error("[v0] Error creating achievement:", error)
+    }
   }
 
-  const handleEditTemplate = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleEditTemplate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!editingTemplate) return
 
     const formData = new FormData(e.currentTarget)
-    const updatedTemplate: AchievementTemplate = {
-      ...editingTemplate,
-      title: formData.get("title") as string,
-      description: formData.get("description") as string,
-      reward: Number.parseInt(formData.get("reward") as string),
-      platinumRequirement: Number.parseInt(formData.get("platinumRequirement") as string),
-    }
 
-    const updatedTemplates = templates.map((t) => (t.id === editingTemplate.id ? updatedTemplate : t))
-    saveAchievementTemplates(updatedTemplates)
-    setTemplates(updatedTemplates)
-    setEditTemplateDialog(false)
-    setEditingTemplate(null)
+    try {
+      const updatedData: Partial<AchievementTemplate> = {
+        title: formData.get("title") as string,
+        description: formData.get("description") as string,
+        reward: Number.parseInt(formData.get("reward") as string),
+        platinumRequirement: Number.parseInt(formData.get("platinumRequirement") as string),
+      }
+
+      await updateAchievementTemplate(editingTemplate.id, updatedData)
+      const updatedTemplates = await getAllAchievementTemplates()
+      setTemplates(updatedTemplates)
+      setEditTemplateDialog(false)
+      setEditingTemplate(null)
+    } catch (error) {
+      console.error("[v0] Error updating template:", error)
+    }
   }
 
-  if (!user || user.role !== "admin") return null
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-lg">Cargando...</div>
+      </div>
+    )
+  }
+
+  if (!adminUser || adminUser.role !== "admin") return null
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
@@ -168,7 +227,7 @@ export function AdminDashboard() {
             </div>
             <div>
               <h1 className="text-xl font-bold">MotivaPlay Admin</h1>
-              <p className="text-sm text-muted-foreground">{user.email}</p>
+              <p className="text-sm text-muted-foreground">{adminUser.email}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">

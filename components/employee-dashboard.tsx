@@ -6,17 +6,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { getCurrentUser, logout, updateUserTokens } from "@/lib/auth"
+import { logout } from "@/lib/auth"
 import {
-  getPrizes,
-  getAchievements,
-  getRedemptions,
-  saveRedemptions,
-  type Prize,
-  type Achievement,
-  type Redemption,
-} from "@/lib/storage"
-import { Coins, Trophy, Gift, Sparkles, LogOut, Gamepad2, Target, Users, TrendingUp, Award } from "lucide-react"
+  getAllPrizes,
+  getUserAchievements,
+  getAllRedemptions,
+  createRedemption,
+  updateUser,
+  createTransaction,
+} from "@/lib/firebase/db"
+import type { Prize, Achievement, Redemption, User } from "@/lib/storage"
+import { Coins, Trophy, Gift, Sparkles, LogOut, Gamepad2, Target, Users, TrendingUp, Award } from 'lucide-react'
 import { SlotsGame } from "./games/slots-game"
 import { BlackjackGame } from "./games/blackjack-game"
 import { RouletteGame } from "./games/roulette-game"
@@ -27,44 +27,69 @@ import { FriendsPanel } from "./social/friends-panel"
 import { RankingsPanel } from "./social/rankings-panel"
 import { BadgesPanel } from "./social/badges-panel"
 
-export function EmployeeDashboard() {
-  const [user, setUser] = useState(getCurrentUser())
+export function EmployeeDashboard({ user: initialUser, onLogout }: { user: User; onLogout: () => void }) {
+  const [user, setUser] = useState<User>(initialUser)
   const [prizes, setPrizes] = useState<Prize[]>([])
   const [achievements, setAchievements] = useState<Achievement[]>([])
   const [gameDialogOpen, setGameDialogOpen] = useState(false)
   const [selectedGame, setSelectedGame] = useState<"slots" | "blackjack" | "roulette" | null>(null)
   const [activeTab, setActiveTab] = useState("games")
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    setPrizes(getPrizes())
-    setAchievements(getAchievements().filter((a) => a.userId === user?.id))
-  }, [user])
+    const loadData = async () => {
+      try {
+        const [prizesData, achievementsData] = await Promise.all([
+          getAllPrizes(),
+          getUserAchievements(user.id)
+        ])
+        setPrizes(prizesData)
+        setAchievements(achievementsData)
+      } catch (error) {
+        console.error("[v0] Error loading data:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadData()
+  }, [user.id])
 
-  const handleLogout = () => {
-    logout()
-    window.location.reload()
+  const handleLogout = async () => {
+    await logout()
+    onLogout()
   }
 
-  const handleRedeemPrize = (prize: Prize) => {
+  const handleRedeemPrize = async (prize: Prize) => {
     if (!user || user.tokens < prize.cost) return
 
-    const newTokens = user.tokens - prize.cost
-    updateUserTokens(user.id, newTokens)
+    try {
+      const newTokens = user.tokens - prize.cost
+      await updateUser(user.id, { tokens: newTokens })
 
-    const redemptions = getRedemptions()
-    const newRedemption: Redemption = {
-      id: Date.now().toString(),
-      userId: user.id,
-      prizeId: prize.id,
-      prizeName: prize.name,
-      tokensCost: prize.cost,
-      date: new Date().toISOString(),
-      status: "pending",
+      const newRedemption: Omit<Redemption, "id"> = {
+        userId: user.id,
+        prizeId: prize.id,
+        prizeName: prize.name,
+        tokensCost: prize.cost,
+        date: new Date().toISOString(),
+        status: "pending",
+      }
+      await createRedemption(newRedemption)
+
+      await createTransaction({
+        userId: user.id,
+        type: "debit",
+        amount: prize.cost,
+        source: "reward",
+        sourceRef: prize.id,
+        description: `Canjeado: ${prize.name}`,
+        date: new Date().toISOString(),
+      })
+
+      setUser({ ...user, tokens: newTokens })
+    } catch (error) {
+      console.error("[v0] Error redeeming prize:", error)
     }
-    redemptions.push(newRedemption)
-    saveRedemptions(redemptions)
-
-    setUser({ ...user, tokens: newTokens })
   }
 
   const openGame = (game: "slots" | "blackjack" | "roulette") => {
@@ -72,14 +97,36 @@ export function EmployeeDashboard() {
     setGameDialogOpen(true)
   }
 
-  const handleGameEnd = (tokensWon: number) => {
+  const handleGameEnd = async (tokensWon: number) => {
     if (!user) return
-    const newTokens = user.tokens + tokensWon
-    updateUserTokens(user.id, newTokens)
-    setUser({ ...user, tokens: newTokens })
+    try {
+      const newTokens = user.tokens + tokensWon
+      await updateUser(user.id, { tokens: newTokens })
+
+      if (tokensWon !== 0) {
+        await createTransaction({
+          userId: user.id,
+          type: tokensWon > 0 ? "credit" : "debit",
+          amount: Math.abs(tokensWon),
+          source: "play",
+          description: tokensWon > 0 ? "Ganado en juego" : "Perdido en juego",
+          date: new Date().toISOString(),
+        })
+      }
+
+      setUser({ ...user, tokens: newTokens })
+    } catch (error) {
+      console.error("[v0] Error updating tokens:", error)
+    }
   }
 
-  if (!user) return null
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-lg">Cargando...</div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">

@@ -4,8 +4,9 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { getUsers, getFriendships, type User } from "@/lib/storage"
-import { Trophy, TrendingUp, Building2, Crown, Coins } from "lucide-react"
+import { getAllUsers, getUserFriendships } from "@/lib/firebase/db"
+import type { User, Friendship } from "@/lib/storage"
+import { Trophy, TrendingUp, Building2, Crown, Coins } from 'lucide-react'
 
 interface RankingsPanelProps {
   currentUserId: string
@@ -13,12 +14,34 @@ interface RankingsPanelProps {
 
 export function RankingsPanel({ currentUserId }: RankingsPanelProps) {
   const [users, setUsers] = useState<User[]>([])
-  const [friendships, setFriendships] = useState<any[]>([])
+  const [friendships, setFriendships] = useState<Friendship[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    setUsers(getUsers())
-    setFriendships(getFriendships())
-  }, [])
+    if (!currentUserId) {
+      console.error("[v0] RankingsPanel: currentUserId is undefined")
+      return
+    }
+    loadData()
+  }, [currentUserId])
+
+  const loadData = async () => {
+    if (!currentUserId) return
+    
+    setLoading(true)
+    try {
+      const [allUsers, allFriendships] = await Promise.all([
+        getAllUsers(),
+        getUserFriendships(currentUserId),
+      ])
+      setUsers(allUsers)
+      setFriendships(allFriendships)
+    } catch (error) {
+      console.error("[v0] Error loading rankings data:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const myFriends = friendships
     .filter((f) => f.user1Id === currentUserId || f.user2Id === currentUserId)
@@ -32,7 +55,6 @@ export function RankingsPanel({ currentUserId }: RankingsPanelProps) {
   const friendsWithMe = currentUser ? [...myFriends, currentUser] : myFriends
   const sortedFriends = [...friendsWithMe].sort((a, b) => b.tokens - a.tokens)
 
-  // Department rankings
   const departments = [...new Set(users.filter((u) => u.role === "employee").map((u) => u.department))]
   const departmentStats = departments.map((dept) => {
     const deptUsers = users.filter((u) => u.department === dept && u.role === "employee")
@@ -48,6 +70,14 @@ export function RankingsPanel({ currentUserId }: RankingsPanelProps) {
     }
   })
   const sortedDepartments = [...departmentStats].sort((a, b) => b.totalTokens - a.totalTokens)
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="text-sm text-muted-foreground">Cargando rankings...</div>
+      </div>
+    )
+  }
 
   return (
     <Tabs defaultValue="friends">

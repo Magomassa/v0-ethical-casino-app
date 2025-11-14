@@ -18,26 +18,41 @@ export function AuthForm({ onSuccess }: { onSuccess: () => void }) {
   const [registerEmail, setRegisterEmail] = useState("")
   const [registerPassword, setRegisterPassword] = useState("")
   const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
-    const user = login(loginEmail, loginPassword)
-    if (user) {
-      onSuccess()
-    } else {
-      setError("Credenciales incorrectas")
+    setLoading(true)
+    try {
+      const user = await login(loginEmail, loginPassword)
+      if (user) {
+        onSuccess()
+      } else {
+        setError("Credenciales incorrectas")
+      }
+    } catch (error) {
+      setError("Error al iniciar sesión")
+    } finally {
+      setLoading(false)
     }
   }
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
-    const user = register(registerEmail, registerPassword)
-    if (user) {
-      onSuccess()
-    } else {
-      setError("El email ya está registrado")
+    setLoading(true)
+    try {
+      const user = await register(registerEmail, registerPassword)
+      if (user) {
+        onSuccess()
+      } else {
+        setError("El email ya está registrado")
+      }
+    } catch (error) {
+      setError("Error al registrar usuario")
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -91,8 +106,8 @@ export function AuthForm({ onSuccess }: { onSuccess: () => void }) {
                   />
                 </div>
                 {error && <p className="text-sm text-destructive">{error}</p>}
-                <Button type="submit" className="w-full">
-                  Iniciar sesión
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? "Iniciando sesión..." : "Iniciar sesión"}
                 </Button>
               </form>
               <div className="mt-4 p-3 bg-muted rounded-lg text-sm space-y-1">
@@ -128,8 +143,8 @@ export function AuthForm({ onSuccess }: { onSuccess: () => void }) {
                   />
                 </div>
                 {error && <p className="text-sm text-destructive">{error}</p>}
-                <Button type="submit" className="w-full">
-                  Crear cuenta
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? "Creando cuenta..." : "Crear cuenta"}
                 </Button>
               </form>
             </TabsContent>
