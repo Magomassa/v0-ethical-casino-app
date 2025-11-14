@@ -214,15 +214,16 @@ export function EmployeeDashboard() {
 
       {/* Game Dialog */}
       <Dialog open={gameDialogOpen} onOpenChange={setGameDialogOpen}>
-        <DialogContent className="max-w-4xl">
-          <DialogHeader>
-            <DialogTitle>
-              {selectedGame === "slots" && "🎰 Slots"}
-              {selectedGame === "blackjack" && "🃏 Blackjack"}
-              {selectedGame === "roulette" && "🎡 Ruleta"}
-            </DialogTitle>
-            <DialogDescription>Apuesta fichas y gana más. ¡Buena suerte!</DialogDescription>
-          </DialogHeader>
+        <DialogContent className={`${selectedGame === "roulette" ? "max-w-[98vw] max-h-[98vh] w-[98vw] h-[98vh]" : "max-w-[95vw] max-h-[95vh]"} overflow-hidden p-0`}>
+          {selectedGame !== "roulette" && (
+            <DialogHeader>
+              <DialogTitle>
+                {selectedGame === "slots" && "🎰 Slots"}
+                {selectedGame === "blackjack" && "🃏 Blackjack"}
+              </DialogTitle>
+              <DialogDescription>Apuesta fichas y gana más. ¡Buena suerte!</DialogDescription>
+            </DialogHeader>
+          )}
           {selectedGame === "slots" && (
             <SlotsGame currentTokens={user.tokens} onGameEnd={handleGameEnd} onClose={() => setGameDialogOpen(false)} />
           )}
