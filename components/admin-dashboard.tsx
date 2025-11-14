@@ -35,8 +35,7 @@ import {
   createTransaction,
 } from "@/lib/firebase/db"
 import type { Prize, Achievement, User, AchievementTemplate, Redemption } from "@/lib/storage"
-import { Users, Gift, Trophy, LogOut, Plus, Sparkles, History, Target, Edit, Settings } from 'lucide-react'
-import { ThemeToggle } from "./theme-toggle"
+import { Users, Gift, Trophy, Plus, History, Target, Edit, Settings } from 'lucide-react'
 import { AdminMissions } from "./missions/admin-missions"
 
 export function AdminDashboard({ user: adminUser, onLogout }: { user: User; onLogout: () => void }) {
@@ -217,29 +216,7 @@ export function AdminDashboard({ user: adminUser, onLogout }: { user: User; onLo
   if (!adminUser || adminUser.role !== "admin") return null
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
-      {/* Header */}
-      <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="bg-primary text-primary-foreground p-2 rounded-lg">
-              <Sparkles className="h-6 w-6" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold">MotivaPlay Admin</h1>
-              <p className="text-sm text-muted-foreground">{adminUser.email}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <ThemeToggle />
-            <Button variant="outline" size="sm" onClick={handleLogout}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Salir
-            </Button>
-          </div>
-        </div>
-      </header>
-
+    <div className="min-h-screen">
       <main className="container mx-auto px-4 py-8 space-y-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-6">

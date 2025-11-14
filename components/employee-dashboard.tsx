@@ -16,12 +16,11 @@ import {
   createTransaction,
 } from "@/lib/firebase/db"
 import type { Prize, Achievement, Redemption, User } from "@/lib/storage"
-import { Coins, Trophy, Gift, Sparkles, LogOut, Gamepad2, Target, Users, TrendingUp, Award } from 'lucide-react'
+import { Coins, Trophy, Gift, Gamepad2, Target, Users, TrendingUp, Award } from 'lucide-react'
 import { SlotsGame } from "./games/slots-game"
 import { BlackjackGame } from "./games/blackjack-game"
 import { RouletteGame } from "./games/roulette-game"
 import { AIMotivator } from "./ai-motivator"
-import { ThemeToggle } from "./theme-toggle"
 import { EmployeeMissions } from "./missions/employee-missions"
 import { FriendsPanel } from "./social/friends-panel"
 import { RankingsPanel } from "./social/rankings-panel"
@@ -129,34 +128,7 @@ export function EmployeeDashboard({ user: initialUser, onLogout }: { user: User;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
-      {/* Header */}
-      <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="bg-primary text-primary-foreground p-2 rounded-lg">
-              <Sparkles className="h-6 w-6" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold">MotivaPlay</h1>
-              <p className="text-sm text-muted-foreground">{user.name}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 bg-accent px-4 py-2 rounded-lg">
-              <Coins className="h-5 w-5 text-secondary" />
-              <span className="font-bold text-lg">{user.tokens}</span>
-              <span className="text-sm text-muted-foreground">fichas</span>
-            </div>
-            <ThemeToggle />
-            <Button variant="outline" size="sm" onClick={handleLogout}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Salir
-            </Button>
-          </div>
-        </div>
-      </header>
-
+    <div className="min-h-screen">
       <main className="container mx-auto px-4 py-8 space-y-8">
         {/* AI Motivator */}
         <AIMotivator userName={user.name} tokens={user.tokens} />
@@ -195,34 +167,81 @@ export function EmployeeDashboard({ user: initialUser, onLogout }: { user: User;
 
           {/* Games Tab Content */}
           <TabsContent value="games" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Gamepad2 className="h-5 w-5" />
-                  Juegos
-                </CardTitle>
-                <CardDescription>Prueba tu suerte y gana más fichas</CardDescription>
+            <Card className="rounded-3xl border-[var(--border)]/50">
+              <CardHeader className="flex-row items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Gamepad2 className="h-5 w-5" />
+                    Mesa de juegos
+                  </CardTitle>
+                  <CardDescription>Prueba tu suerte, multiplica tus fichas y desbloquea recompensas especiales.</CardDescription>
+                </div>
+                <div
+                  className="hidden md:flex items-center gap-2 rounded-full border px-4 py-2 text-xs tracking-widest cursor-pointer hover:bg-accent/40"
+                  onClick={() => setActiveTab('achievements')}
+                  title="Ver historial"
+                >
+                  <span>🕑 Historial en tiempo real</span>
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="grid gap-4 md:grid-cols-3">
-                  <Button
+                <div className="grid gap-6 md:grid-cols-3">
+                  {/* Slots */}
+                  <div
+                    role="button"
                     onClick={() => openGame("slots")}
-                    className="h-24 text-lg bg-gradient-to-br from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+                    className="group relative overflow-hidden rounded-2xl p-6 cursor-pointer ring-1 ring-[var(--border)]/40 bg-gradient-to-br from-yellow-300/35 via-primary/20 to-blue-700/40 dark:from-yellow-400/25 dark:to-blue-600/35 hover:shadow-xl transition-all duration-300"
                   >
-                    🎰 Slots
-                  </Button>
-                  <Button
+                    <div className="flex items-start justify-between">
+                      <span className="text-5xl">🎰</span>
+                    </div>
+                    <div className="mt-4 space-y-2">
+                      <h3 className="text-xl font-extrabold">Slots Royal</h3>
+                      <p className="text-sm text-muted-foreground">Gira y gana combinaciones épicas</p>
+                    </div>
+                    <div className="mt-6 text-xs font-semibold tracking-widest text-muted-foreground">
+                      JUGAR AHORA →
+                    </div>
+                    <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{background:"radial-gradient(120px 120px at 20% 20%, rgba(255,255,255,0.25), transparent)"}} />
+                  </div>
+
+                  {/* Blackjack */}
+                  <div
+                    role="button"
                     onClick={() => openGame("blackjack")}
-                    className="h-24 text-lg bg-gradient-to-br from-secondary to-secondary/80 hover:from-secondary/90 hover:to-secondary/70"
+                    className="group relative overflow-hidden rounded-2xl p-6 cursor-pointer ring-1 ring-[var(--border)]/40 bg-gradient-to-br from-blue-700/40 via-blue-600/30 to-emerald-500/40 hover:shadow-xl transition-all duration-300"
                   >
-                    🃏 Blackjack
-                  </Button>
-                  <Button
+                    <div className="flex items-start justify-between">
+                      <span className="text-5xl">🃏</span>
+                    </div>
+                    <div className="mt-4 space-y-2">
+                      <h3 className="text-xl font-extrabold">Blackjack Pro</h3>
+                      <p className="text-sm text-muted-foreground">Domina la mesa, asegure 21</p>
+                    </div>
+                    <div className="mt-6 text-xs font-semibold tracking-widest text-muted-foreground">
+                      JUGAR AHORA →
+                    </div>
+                    <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{background:"radial-gradient(120px 120px at 20% 20%, rgba(255,255,255,0.15), transparent)"}} />
+                  </div>
+
+                  {/* Roulette */}
+                  <div
+                    role="button"
                     onClick={() => openGame("roulette")}
-                    className="h-24 text-lg bg-gradient-to-br from-chart-3 to-chart-3/80 hover:from-chart-3/90 hover:to-chart-3/70 text-white"
+                    className="group relative overflow-hidden rounded-2xl p-6 cursor-pointer ring-1 ring-[var(--border)]/40 bg-gradient-to-br from-emerald-400/35 via-teal-500/30 to-yellow-300/40 hover:shadow-xl transition-all duration-300"
                   >
-                    🎡 Ruleta
-                  </Button>
+                    <div className="flex items-start justify-between">
+                      <span className="text-5xl">🎡</span>
+                    </div>
+                    <div className="mt-4 space-y-2">
+                      <h3 className="text-xl font-extrabold">Ruleta Motivacional</h3>
+                      <p className="text-sm text-muted-foreground">Apuesta por momentos inolvidables</p>
+                    </div>
+                    <div className="mt-6 text-xs font-semibold tracking-widest text-muted-foreground">
+                      JUGAR AHORA →
+                    </div>
+                    <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{background:"radial-gradient(120px 120px at 20% 20%, rgba(255,255,255,0.2), transparent)"}} />
+                  </div>
                 </div>
               </CardContent>
             </Card>

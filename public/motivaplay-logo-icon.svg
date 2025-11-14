@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-label="MotivaPlay icon">
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f6d06b"/>
+      <stop offset="50%" stop-color="#d4af37"/>
+      <stop offset="100%" stop-color="#b9902f"/>
+    </linearGradient>
+    <linearGradient id="teal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#31cbb0"/>
+      <stop offset="100%" stop-color="#2bbfa1"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="256" height="256" rx="48" fill="#0b1e3c"/>
+
+  <!-- Outer gold ring -->
+  <circle cx="128" cy="128" r="92" fill="none" stroke="url(#gold)" stroke-width="16"/>
+
+  <!-- Teal chip segments -->
+  <g fill="url(#teal)">
+    <rect x="54" y="62" width="26" height="36" rx="4"/>
+    <rect x="176" y="62" width="26" height="36" rx="4"/>
+    <rect x="54" y="158" width="26" height="36" rx="4"/>
+    <rect x="176" y="158" width="26" height="36" rx="4"/>
+    <rect x="116" y="38" width="24" height="28" rx="4"/>
+    <rect x="116" y="190" width="24" height="28" rx="4"/>
+  </g>
+
+  <!-- Inner gold disc -->
+  <circle cx="128" cy="128" r="60" fill="url(#gold)" filter="url(#glow)"/>
+
+  <!-- MP letters -->
+  <g fill="#0a1731">
+    <path d="M92 156 V100 H104 L114 120 L124 100 H136 V156 H124 V128 L114 148 L104 128 V156 Z"/>
+    <path d="M144 100 H170 C184 100 190 110 190 122 C190 134 182 144 168 144 H156 V156 H144 V100 Z M170 112 H156 V132 H168 C174 132 178 128 178 122 C178 116 174 112 170 112 Z"/>
+  </g>
+
+  <!-- Decorative crowns/stars -->
+  <g fill="#f0c85d">
+    <path d="M128 78 l6 8 6-8 4 10 -20 0 4-10z"/>
+    <circle cx="200" cy="128" r="4"/>
+    <circle cx="56" cy="128" r="4"/>
+  </g>
+</svg>

@@ -4,77 +4,103 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: oklch(0.98 0.005 264);
-  --foreground: oklch(0.15 0.02 264);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.15 0.02 264);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.15 0.02 264);
-  --primary: oklch(0.55 0.22 264);
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.7 0.18 160);
-  --secondary-foreground: oklch(0.99 0 0);
-  --muted: oklch(0.96 0.01 264);
-  --muted-foreground: oklch(0.5 0.02 264);
-  --accent: oklch(0.92 0.05 90);
-  --accent-foreground: oklch(0.15 0.02 264);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.9 0.01 264);
-  --input: oklch(0.9 0.01 264);
-  --ring: oklch(0.55 0.22 264);
-  --chart-1: oklch(0.55 0.22 264);
-  --chart-2: oklch(0.7 0.18 160);
-  --chart-3: oklch(0.6 0.2 45);
-  --chart-4: oklch(0.65 0.15 300);
-  --chart-5: oklch(0.75 0.12 200);
+  /* Tema claro: más luminoso, manteniendo identidad casino */
+  --background: #f6f9ff; /* azure muy claro */
+  --foreground: #0a1731; /* navy para texto */
+  --text-xs: 0.75rem;   /* 12px */
+  --text-sm: 0.875rem;  /* 14px */
+  --text-base: 1rem;    /* 16px */
+  --text-lg: 1.125rem;  /* 18px */
+  --text-xl: 1.25rem;   /* 20px */
+  --text-2xl: 1.5rem;   /* 24px */
+  --text-3xl: 1.875rem; /* 30px */
+  --text-4xl: 2.5rem;   /* 40px - Ajustado para mejor legibilidad */
+  --text-5xl: 3.5rem;   /* 56px - Ajustado para mejor jerarquía */
+  --text-6xl: 4.5rem;   /* 72px */
+  --text-7xl: 5.5rem;   /* 88px */
+  --text-8xl: 7rem;     /* 112px */
+  --text-9xl: 9rem;     /* 144px */
+  
+  /* Ajustes de tracking (espaciado entre letras) */
+  --tracking-tight: -0.05em;
+  --tracking-normal: 0.05em;
+  --tracking-wide: 0.1em;
+  --tracking-wider: 0.2em;
+  --tracking-widest: 0.3em;
+  --card: #ffffff;
+  --card-foreground: #0a1731;
+  --popover: #ffffff;
+  --popover-foreground: #0a1731;
+  --primary: #d4af37; /* casino gold */
+  --primary-foreground: #0a1731;
+  --secondary: #2bbfa1; /* teal/green chip */
+  --secondary-foreground: #082030;
+  --muted: #eef2fa; /* gris azulado suave */
+  --muted-foreground: #495a79;
+  --accent: #1f4d8f; /* azul real para botones/destacados */
+  --accent-foreground: #ffffff;
+  --destructive: #b23a3a;
+  --destructive-foreground: #fffdf2;
+  --border: #d5e1ff; /* borde claro azulado */
+  --input: #d5e1ff;
+  --ring: #d4af37;
+  --chart-1: #d4af37;
+  --chart-2: #2bbfa1;
+  --chart-3: #1f4d8f;
+  --chart-4: #6fd1b7;
+  --chart-5: #ffc857;
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar: #f6f9ff;
+  --sidebar-foreground: #0a1731;
+  --sidebar-primary: #d4af37;
+  --sidebar-primary-foreground: #0a1731;
+  --sidebar-accent: #e9f1ff;
+  --sidebar-accent-foreground: #0a1731;
+  --sidebar-border: #d5e1ff;
+  --sidebar-ring: #2bbfa1;
 }
 
 .dark {
-  --background: oklch(0.12 0.02 264);
-  --foreground: oklch(0.98 0.005 264);
-  --card: oklch(0.15 0.02 264);
-  --card-foreground: oklch(0.98 0.005 264);
-  --popover: oklch(0.15 0.02 264);
-  --popover-foreground: oklch(0.98 0.005 264);
-  --primary: oklch(0.65 0.22 264);
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.75 0.18 160);
-  --secondary-foreground: oklch(0.99 0 0);
-  --muted: oklch(0.2 0.02 264);
-  --muted-foreground: oklch(0.6 0.02 264);
-  --accent: oklch(0.25 0.05 90);
-  --accent-foreground: oklch(0.98 0.005 264);
-  --destructive: oklch(0.6 0.25 27);
-  --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.25 0.02 264);
-  --input: oklch(0.25 0.02 264);
-  --ring: oklch(0.65 0.22 264);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.439 0 0);
+  /* Tema oscuro: profundo y contrastado */
+  --background: #0a1731;
+  --foreground: #e6edf7;
+  --card: #0b1e3c;
+  --card-foreground: #e6edf7;
+  --popover: #0b1e3c;
+  --popover-foreground: #e6edf7;
+  --primary: #f0c85d; /* gold más brillante */
+  --primary-foreground: #0a1731;
+  --secondary: #31cbb0;
+  --secondary-foreground: #092435;
+  --muted: #0f2548;
+  --muted-foreground: #a3b4d3;
+  --accent: #245aa3;
+  --accent-foreground: #e6edf7;
+  --destructive: #a33131;
+  --destructive-foreground: #fffdf2;
+  --border: #16325f;
+  --input: #16325f;
+  --ring: #f0c85d;
+  --chart-1: #f0c85d;
+  --chart-2: #31cbb0;
+  --chart-3: #245aa3;
+  --chart-4: #7bd8c2;
+  --chart-5: #ffe082;
+  --sidebar: #0a1731;
+  --sidebar-foreground: #e6edf7;
+  --sidebar-primary: #f0c85d;
+  --sidebar-primary-foreground: #0a1731;
+  --sidebar-accent: #245aa3;
+  --sidebar-accent-foreground: #e6edf7;
+  --sidebar-border: #16325f;
+  --sidebar-ring: #31cbb0;
 }
 
 @theme inline {
+  /* Fuentes */
+  --font-sans: 'Rajdhani', sans-serif;
+  --font-mono: 'Rajdhani', monospace;
+  --font-display: 'Bebas Neue', sans-serif;
   /* optional: --font-sans, --font-serif, --font-mono if they are applied in the layout.tsx */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -121,4 +147,40 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Casino-inspired dynamic background and subtle shine */
+.casino-bg {
+  /* Fondo para tema claro */
+  background-image:
+    radial-gradient(1000px 700px at 10% -10%, rgba(36, 90, 163, 0.12), transparent 60%),
+    radial-gradient(700px 500px at 90% 10%, rgba(43, 191, 161, 0.10), transparent 70%),
+    radial-gradient(circle at 50% 30%, rgba(212, 175, 55, 0.08), transparent 55%),
+    linear-gradient(180deg, #f6f9ff 0%, #ecf3ff 45%, #e6efff 100%);
+  position: relative;
+}
+
+.dark .casino-bg {
+  /* Fondo para tema oscuro */
+  background-image:
+    radial-gradient(1200px 800px at 10% -10%, rgba(36, 90, 163, 0.28), transparent 60%),
+    radial-gradient(800px 600px at 90% 10%, rgba(43, 191, 161, 0.18), transparent 70%),
+    radial-gradient(circle at 50% 30%, rgba(212, 175, 55, 0.08), transparent 55%),
+    linear-gradient(180deg, rgba(11, 30, 60, 1) 0%, rgba(13, 33, 65, 1) 45%, rgba(10, 23, 49, 1) 100%);
+}
+
+.casino-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(1px 1px at 15% 20%, rgba(240, 200, 93, 0.6), transparent 60%),
+              radial-gradient(1px 1px at 80% 35%, rgba(240, 200, 93, 0.5), transparent 60%),
+              radial-gradient(1px 1px at 30% 75%, rgba(49, 203, 176, 0.5), transparent 60%);
+  animation: twinkle 6s linear infinite;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
 }
