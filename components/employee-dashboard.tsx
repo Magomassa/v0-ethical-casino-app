@@ -407,14 +407,16 @@ export function EmployeeDashboard({ user: initialUser, onLogout }: { user: User;
 
       {/* Game Dialog */}
       <Dialog open={gameDialogOpen} onOpenChange={setGameDialogOpen}>
-        <DialogContent className="max-w-[95vw] sm:max-w-4xl md:max-w-5xl lg:max-w-6xl">
-          <DialogHeader>
+        <DialogContent className={`${selectedGame === "roulette" ? "max-w-[98vw] max-h-[98vh] w-[98vw] h-[98vh]" : "max-w-[95vw] max-h-[95vh]"} overflow-hidden p-0`}>
+          <DialogHeader className={selectedGame === "roulette" ? "sr-only" : ""}>
             <DialogTitle>
               {selectedGame === "slots" && "🎰 Slots"}
               {selectedGame === "blackjack" && "🃏 Blackjack"}
               {selectedGame === "roulette" && "🎡 Ruleta"}
             </DialogTitle>
-            <DialogDescription>Apuesta fichas y gana más. ¡Buena suerte!</DialogDescription>
+            {selectedGame !== "roulette" && (
+              <DialogDescription>Apuesta fichas y gana más. ¡Buena suerte!</DialogDescription>
+            )}
           </DialogHeader>
           {selectedGame === "slots" && (
             <SlotsGame currentTokens={user.tokens} onGameEnd={handleGameEnd} onClose={() => setGameDialogOpen(false)} />
@@ -428,6 +430,7 @@ export function EmployeeDashboard({ user: initialUser, onLogout }: { user: User;
           )}
           {selectedGame === "roulette" && (
             <RouletteGame
+              userId={user.id}
               currentTokens={user.tokens}
               onGameEnd={handleGameEnd}
               onClose={() => setGameDialogOpen(false)}

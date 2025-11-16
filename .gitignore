@@ -31,4 +31,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+<<<<<<< HEAD
 .next_dev2
+=======
+
+.next_dev2
+>>>>>>> origin/ruleta-modificaciones
