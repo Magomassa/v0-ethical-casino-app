@@ -33,8 +33,9 @@ import {
   updateAchievementTemplate,
   updateUser,
   createTransaction,
+  getUserTransactions,
 } from "@/lib/firebase/db"
-import type { Prize, Achievement, User, AchievementTemplate, Redemption } from "@/lib/storage"
+import type { Prize, Achievement, User, AchievementTemplate, Redemption, Transaction } from "@/lib/storage"
 import { Users, Gift, Trophy, LogOut, Plus, Sparkles, History, Target, Edit, Settings, Pencil } from 'lucide-react'
 import { ThemeToggle } from "./theme-toggle"
 import { AdminMissions } from "./missions/admin-missions"
@@ -55,9 +56,18 @@ export function AdminDashboard({ user: adminUser, onLogout }: { user: User; onLo
   const [loading, setLoading] = useState(true)
   const [isMCPModalOpen, setIsMCPModalOpen] = useState(false)
   type MCPResponse = {
-  respuesta_mcp?: any; // Replace 'any' with the actual type if you know it
-}
-const [mcp, setMcp] = useState<MCPResponse>({});
+    respuesta_mcp?: {
+      saludo: string
+      resumen: string
+      estadisticas: {
+        partidas: number
+        balance: number
+        ratio_ganancias: number
+      }
+      recomendaciones: string[]
+    }
+  }
+  const [mcp, setMcp] = useState<MCPResponse>({})
 
   useEffect(() => {
     const loadData = async () => {
@@ -95,24 +105,60 @@ const [mcp, setMcp] = useState<MCPResponse>({});
     }
   }, [mcp]);
 
+  const buildMcpFromTransactions = (employee: User | undefined, transactions: Transaction[]): MCPResponse => {
+    const credits = transactions.filter((t) => t.type === "credit")
+    const debits = transactions.filter((t) => t.type === "debit")
+    const totalCredits = credits.reduce((sum, t) => sum + t.amount, 0)
+    const totalDebits = debits.reduce((sum, t) => sum + t.amount, 0)
+    const balance = totalCredits - totalDebits
+    const totalVolume = totalCredits + totalDebits
+    const ratio = totalVolume === 0 ? 0 : totalCredits / totalVolume
+
+    const recomendaciones: string[] = []
+    if (transactions.length === 0) {
+      recomendaciones.push("El empleado todavía no registra transacciones. Incentiva su participación con misiones.")
+    } else {
+      if (ratio < 0.5) {
+        recomendaciones.push("Revisa misiones u objetivos que ayuden a mejorar el ratio de ganancias.")
+      } else {
+        recomendaciones.push("Mantén el seguimiento: el desempeño es sólido y equilibrado.")
+      }
+      if (balance < 0) {
+        recomendaciones.push("Considera otorgar fichas adicionales o coaching para equilibrar el balance.")
+      } else {
+        recomendaciones.push("Puedes proponer metas más retadoras para aprovechar el balance positivo.")
+      }
+    }
+
+    return {
+      respuesta_mcp: {
+        saludo: `Hola ${employee?.name ?? "equipo"}`,
+        resumen:
+          transactions.length === 0
+            ? "Aún no se registran movimientos para este empleado."
+            : `${employee?.name ?? "El empleado"} tiene ${transactions.length} transacciones registradas con un balance actual de ${balance} fichas.`,
+        estadisticas: {
+          partidas: transactions.length,
+          balance,
+          ratio_ganancias: ratio,
+        },
+        recomendaciones,
+      },
+    }
+  }
+
   const consultaMCPEmployee = async (employeeId: string) => {
     try {
-      const response = await fetch(`http://localhost:4000/api/users/${employeeId}/transactions`);
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
-      }
-      const data = await response.json();
-      console.log('Employee Transactions:', data);
-      //guarda la informacion data en el varialble mcp
-      setMcp(data);
-      console.log('MCP:', mcp);
-      //setIsMCPModalOpen(true);
-      return data;
+      const transactions = await getUserTransactions(employeeId)
+      const employee = users.find((u) => u.id === employeeId)
+      const data = buildMcpFromTransactions(employee, transactions)
+      setMcp(data)
+      return data
     } catch (error) {
-      console.error('Error fetching employee transactions:', error);
-      throw error;
+      console.error("Error fetching employee transactions:", error)
+      throw error
     }
-  };
+  }
 
   const handleLogout = async () => {
     await logout()

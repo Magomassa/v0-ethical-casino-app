@@ -40,7 +40,10 @@ NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
 NEXT_PUBLIC_FIREBASE_APP_ID=your-app-id
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=your-measurement-id # optional
 \`\`\`
+
+> `lib/firebase/config.ts` reads these variables so the app uses whichever Firebase project you configure here.
 
 ## 6. Seed Demo Data
 
