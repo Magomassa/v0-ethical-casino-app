@@ -6728,6 +6728,7 @@ function EmployeeDashboard({ user: initialUser, onLogout }) {
                             columnNumber: 13
                         }, this),
                         selectedGame === "roulette" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$games$2f$roulette$2d$game$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["RouletteGame"], {
+                            userId: user.id,
                             currentTokens: user.tokens,
                             onGameEnd: handleGameEnd,
                             onClose: ()=>setGameDialogOpen(false)

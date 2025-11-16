@@ -430,6 +430,7 @@ export function EmployeeDashboard({ user: initialUser, onLogout }: { user: User;
           )}
           {selectedGame === "roulette" && (
             <RouletteGame
+              userId={user.id}
               currentTokens={user.tokens}
               onGameEnd={handleGameEnd}
               onClose={() => setGameDialogOpen(false)}
