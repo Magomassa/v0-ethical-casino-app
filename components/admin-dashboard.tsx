@@ -318,26 +318,38 @@ const [mcp, setMcp] = useState<MCPResponse>({});
                   {users
                     .filter((u) => u.role === "employee")
                     .map((employee) => (
-                      <div key={employee.id} className="flex items-center justify-between p-4 bg-accent rounded-lg">
+                      <div
+                        key={employee.id}
+                        className="flex items-center justify-between p-4 bg-accent rounded-lg"
+                      >
+                        {/* Información del usuario */}
                         <div>
                           <h3 className="font-semibold">{employee.name}</h3>
                           <p className="text-sm text-muted-foreground">
                             {employee.email} - {employee.department}
                           </p>
                         </div>
-                        <div>
-                          <Button variant="outline" size="sm" onClick={() => consultaMCPEmployee(employee.id)}>
+
+                        {/* Botón + Fichas alineados correctamente */}
+                        <div className="flex items-center gap-4">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => consultaMCPEmployee(employee.id)}
+                          >
                             <Pencil className="h-4 w-4 mr-2" />
                             Consultar MCP
                           </Button>
+
+                          <Badge variant="secondary" className="text-base px-4 py-2">
+                            {employee.tokens} fichas
+                          </Badge>
                         </div>
-                        <Badge variant="secondary" className="text-base px-4 py-2">
-                          {employee.tokens} fichas
-                        </Badge>
                       </div>
                     ))}
                 </div>
               </CardContent>
+
             </Card>
           </TabsContent>
 
