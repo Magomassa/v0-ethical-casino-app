@@ -337,150 +337,189 @@ export function RouletteGame({
   const isNumberSelected = (n: number) => selectedBets.some((b) => b.type === "number" && b.value === n)
 
   return (
-    <div className="flex flex-col items-center justify-start gap-2 h-screen w-full p-2 bg-gradient-to-br from-[#083816] via-[#0b4f2e] to-[#1b2b1b] overflow-hidden">
+    <div className="roulette-root flex flex-col items-center justify-start gap-2 h-screen w-full p-2 overflow-hidden">
       {/* Panel superior con fichas del jugador */}
-      <div className="w-full bg-gradient-to-r from-yellow-600 to-yellow-500 rounded-md p-2 shadow-md text-center">
+      <div className="roulette-top-panel w-full bg-gradient-to-r from-yellow-600 to-yellow-500 rounded-md p-2 text-center">
         <div className="text-xs font-semibold text-gray-900">FICHAS DISPONIBLES</div>
         <div className="text-lg md:text-xl font-bold text-gray-900">{tokens}</div>
       </div>
 
-      {/* Contenedor principal: tablero (izq) + ruleta (der) */}
-      <div className="flex flex-1 w-full max-w-6xl gap-3 px-1 overflow-hidden">
-        {/* TABLERO - izquierda */}
-        <div className="flex-1 flex flex-col gap-2 overflow-hidden">
-          {/* Botones de apuestas externas */}
-          <Card className="p-1 bg-green-900 border-yellow-600">
-            <div className="grid grid-cols-3 gap-1 text-[11px]">
-              <button
-                onClick={() =>
-                  setSelectedBets(
-                    selectedBets.some((b) => b.type === "color" && b.value === "red")
-                      ? selectedBets.filter((b) => !(b.type === "color" && b.value === "red"))
-                      : [...selectedBets, { type: "color", value: "red", payout: 2 }]
-                  )
-                }
-                disabled={spinning}
-                className={`w-full py-1 rounded-sm font-bold bg-red-600 text-white ${selectedBets.some((b) => b.type === "color" && b.value === "red") ? "ring-2 ring-yellow-300" : ""}`}
-              >
-                Rojo
-              </button>
-              <button
-                onClick={() =>
-                  setSelectedBets(
-                    selectedBets.some((b) => b.type === "color" && b.value === "black")
-                      ? selectedBets.filter((b) => !(b.type === "color" && b.value === "black"))
-                      : [...selectedBets, { type: "color", value: "black", payout: 2 }]
-                  )
-                }
-                disabled={spinning}
-                className={`w-full py-1 rounded-sm font-bold bg-black text-white ${selectedBets.some((b) => b.type === "color" && b.value === "black") ? "ring-2 ring-yellow-300" : ""}`}
-              >
-                Negro
-              </button>
-              <div className="w-full grid grid-cols-2 gap-1">
+      {/* Contenedor principal: ruleta (izq) + tablero (der) */}
+      <div className="flex flex-1 w-full max-w-6xl flex-col gap-3 px-1 overflow-hidden">
+        <div className="flex flex-1 gap-3 overflow-hidden">
+          {/* RULETA - izquierda */}
+          <div className="roulette-wheel-panel w-80 flex flex-col items-center gap-3 p-3 rounded-md flex-none">
+            <canvas ref={canvasRef} className="rounded-md w-64 h-64" />
+
+            {/* Resultado */}
+            <div className="roulette-result-badge text-sm font-bold text-gray-900 bg-green-800 px-3 py-1 rounded">
+              {result ?? "-"}
+            </div>
+          </div>
+
+          {/* TABLERO - derecha */}
+          <div className="flex-1 flex flex-col gap-2 overflow-hidden">
+            {/* Botones de apuestas externas */}
+            <Card className="roulette-board-card p-1 border-yellow-600">
+              <div className="grid grid-cols-3 gap-1 text-[11px]">
                 <button
                   onClick={() =>
                     setSelectedBets(
-                      selectedBets.some((b) => b.type === "parity" && b.value === "even")
-                        ? selectedBets.filter((b) => !(b.type === "parity" && b.value === "even"))
-                        : [...selectedBets, { type: "parity", value: "even", payout: 2 }]
+                      selectedBets.some((b) => b.type === "color" && b.value === "red")
+                        ? selectedBets.filter((b) => !(b.type === "color" && b.value === "red"))
+                        : [...selectedBets, { type: "color", value: "red", payout: 2 }]
                     )
                   }
                   disabled={spinning}
-                  className="text-[10px] py-1 rounded-sm bg-green-800 text-white"
+                  className={`w-full py-1 rounded-sm font-bold bg-red-600 text-white ${selectedBets.some((b) => b.type === "color" && b.value === "red") ? "ring-2 ring-yellow-300" : ""}`}
                 >
-                  Par
+                  Rojo
                 </button>
                 <button
                   onClick={() =>
                     setSelectedBets(
-                      selectedBets.some((b) => b.type === "parity" && b.value === "odd")
-                        ? selectedBets.filter((b) => !(b.type === "parity" && b.value === "odd"))
-                        : [...selectedBets, { type: "parity", value: "odd", payout: 2 }]
+                      selectedBets.some((b) => b.type === "color" && b.value === "black")
+                        ? selectedBets.filter((b) => !(b.type === "color" && b.value === "black"))
+                        : [...selectedBets, { type: "color", value: "black", payout: 2 }]
                     )
                   }
                   disabled={spinning}
-                  className="text-[10px] py-1 rounded-sm bg-green-800 text-white"
+                  className={`w-full py-1 rounded-sm font-bold bg-black text-white ${selectedBets.some((b) => b.type === "color" && b.value === "black") ? "ring-2 ring-yellow-300" : ""}`}
                 >
-                  Impar
+                  Negro
                 </button>
+                <div className="w-full grid grid-cols-2 gap-1">
+                  <button
+                    onClick={() =>
+                      setSelectedBets(
+                        selectedBets.some((b) => b.type === "parity" && b.value === "even")
+                          ? selectedBets.filter((b) => !(b.type === "parity" && b.value === "even"))
+                          : [...selectedBets, { type: "parity", value: "even", payout: 2 }]
+                      )
+                    }
+                    disabled={spinning}
+                    className="text-[10px] py-1 rounded-sm bg-green-800 text-white"
+                  >
+                    Par
+                  </button>
+                  <button
+                    onClick={() =>
+                      setSelectedBets(
+                        selectedBets.some((b) => b.type === "parity" && b.value === "odd")
+                          ? selectedBets.filter((b) => !(b.type === "parity" && b.value === "odd"))
+                          : [...selectedBets, { type: "parity", value: "odd", payout: 2 }]
+                      )
+                    }
+                    disabled={spinning}
+                    className="text-[10px] py-1 rounded-sm bg-green-800 text-white"
+                  >
+                    Impar
+                  </button>
+                </div>
               </div>
-            </div>
-          </Card>
+            </Card>
 
-          {/* Números del tablero */}
-          <Card className="mt-1 p-1 bg-green-900 border-yellow-600 flex-1">
-            <div className="grid grid-cols-3 gap-0.5 text-[10px] h-full">
-              {[1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34].map((num) => {
-                const isSelected = isNumberSelected(num)
-                const isWinner = result === num
-                const baseColor = isWinner ? "bg-yellow-400 text-black" : redNumbers.includes(num) ? "bg-red-600 text-white" : "bg-black text-white"
-                return (
-                  <button
-                    key={num}
-                    onClick={() =>
-                      setSelectedBets(
-                        isSelected
-                          ? selectedBets.filter((b) => !(b.type === "number" && b.value === num))
-                          : [...selectedBets, { type: "number", value: num, payout: 36 }]
-                      )
-                    }
-                    disabled={spinning}
-                    className={`h-6 rounded-sm font-semibold ${baseColor} ${isSelected ? "ring-2 ring-yellow-300" : ""} ${isWinner ? "animate-pulse" : ""}`}
-                  >
-                    {num}
-                  </button>
-                )
-              })}
+            {/* Números del tablero */}
+            <Card className="roulette-board-card mt-1 p-1 border-yellow-600 flex-1">
+              <div className="roulette-board-grid grid grid-cols-3 gap-0.5 text-[10px] h-full">
+                {[1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34].map((num) => {
+                  const isSelected = isNumberSelected(num)
+                  const isWinner = result === num
+                  const baseColor = isWinner ? "bg-yellow-400 text-black" : redNumbers.includes(num) ? "bg-red-600 text-white" : "bg-black text-white"
+                  return (
+                    <button
+                      key={num}
+                      onClick={() =>
+                        setSelectedBets(
+                          isSelected
+                            ? selectedBets.filter((b) => !(b.type === "number" && b.value === num))
+                            : [...selectedBets, { type: "number", value: num, payout: 36 }]
+                        )
+                      }
+                      disabled={spinning}
+                      className={`h-6 rounded-sm font-semibold ${baseColor} ${isSelected ? "ring-2 ring-yellow-300" : ""} ${isWinner ? "animate-pulse" : ""}`}
+                    >
+                      {num}
+                    </button>
+                  )
+                })}
 
-              {[2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35].map((num) => {
-                const isSelected = isNumberSelected(num)
-                const isWinner = result === num
-                const baseColor = isWinner ? "bg-yellow-400 text-black" : redNumbers.includes(num) ? "bg-red-600 text-white" : "bg-black text-white"
-                return (
-                  <button
-                    key={num}
-                    onClick={() =>
-                      setSelectedBets(
-                        isSelected
-                          ? selectedBets.filter((b) => !(b.type === "number" && b.value === num))
-                          : [...selectedBets, { type: "number", value: num, payout: 36 }]
-                      )
-                    }
-                    disabled={spinning}
-                    className={`h-6 rounded-sm font-semibold ${baseColor} ${isSelected ? "ring-2 ring-yellow-300" : ""} ${isWinner ? "animate-pulse" : ""}`}
-                  >
-                    {num}
-                  </button>
-                )
-              })}
+                {[2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35].map((num) => {
+                  const isSelected = isNumberSelected(num)
+                  const isWinner = result === num
+                  const baseColor = isWinner ? "bg-yellow-400 text-black" : redNumbers.includes(num) ? "bg-red-600 text-white" : "bg-black text-white"
+                  return (
+                    <button
+                      key={num}
+                      onClick={() =>
+                        setSelectedBets(
+                          isSelected
+                            ? selectedBets.filter((b) => !(b.type === "number" && b.value === num))
+                            : [...selectedBets, { type: "number", value: num, payout: 36 }]
+                        )
+                      }
+                      disabled={spinning}
+                      className={`h-6 rounded-sm font-semibold ${baseColor} ${isSelected ? "ring-2 ring-yellow-300" : ""} ${isWinner ? "animate-pulse" : ""}`}
+                    >
+                      {num}
+                    </button>
+                  )
+                })}
 
-              {[3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36].map((num) => {
-                const isSelected = isNumberSelected(num)
-                const isWinner = result === num
-                const baseColor = isWinner ? "bg-yellow-400 text-black" : redNumbers.includes(num) ? "bg-red-600 text-white" : "bg-black text-white"
-                return (
-                  <button
-                    key={num}
-                    onClick={() =>
-                      setSelectedBets(
-                        isSelected
-                          ? selectedBets.filter((b) => !(b.type === "number" && b.value === num))
-                          : [...selectedBets, { type: "number", value: num, payout: 36 }]
-                      )
-                    }
-                    disabled={spinning}
-                    className={`h-6 rounded-sm font-semibold ${baseColor} ${isSelected ? "ring-2 ring-yellow-300" : ""} ${isWinner ? "animate-pulse" : ""}`}
-                  >
-                    {num}
-                  </button>
-                )
-              })}
-            </div>
-          </Card>
+                {[3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36].map((num) => {
+                  const isSelected = isNumberSelected(num)
+                  const isWinner = result === num
+                  const baseColor = isWinner ? "bg-yellow-400 text-black" : redNumbers.includes(num) ? "bg-red-600 text-white" : "bg-black text-white"
+                  return (
+                    <button
+                      key={num}
+                      onClick={() =>
+                        setSelectedBets(
+                          isSelected
+                            ? selectedBets.filter((b) => !(b.type === "number" && b.value === num))
+                            : [...selectedBets, { type: "number", value: num, payout: 36 }]
+                        )
+                      }
+                      disabled={spinning}
+                      className={`h-6 rounded-sm font-semibold ${baseColor} ${isSelected ? "ring-2 ring-yellow-300" : ""} ${isWinner ? "animate-pulse" : ""}`}
+                    >
+                      {num}
+                    </button>
+                  )
+                })}
+              </div>
+            </Card>
+
+            {/* Mensaje e historial debajo del tablero */}
+            {message && <div className="text-xs text-center text-white font-bold bg-green-800 p-1 rounded">{message}</div>}
+            {history.length > 0 && (
+              <div className="text-xs bg-green-800 p-1 rounded text-white">
+                <strong>Últimos:</strong> {history.join(", ")}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Franja inferior: fichas rápidas + controles */}
+        <div className="mt-1 w-full flex flex-col gap-2">
+          {/* Fichas rápidas */}
+          <div className="roulette-chips-row flex flex-wrap gap-1 justify-center">
+            {chipValues.map((v) => (
+              <button
+                key={v}
+                onClick={() => selectChip(v)}
+                disabled={spinning}
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-sm ${
+                  selectedChip === v ? "ring-2 ring-white" : ""
+                } ${v === 1 ? "bg-gray-600" : v === 5 ? "bg-green-600" : v === 10 ? "bg-yellow-500" : v === 25 ? "bg-red-500" : "bg-purple-600"}`}
+              >
+                {v}
+              </button>
+            ))}
+          </div>
 
           {/* Controles */}
-          <div className="mt-1 w-full flex items-center gap-2">
+          <div className="w-full flex items-center gap-2">
             <Input
               type="number"
               min="1"
@@ -501,40 +540,6 @@ export function RouletteGame({
               Salir
             </Button>
           </div>
-
-          {/* Mensaje */}
-          {message && <div className="text-xs text-center text-white font-bold bg-green-800 p-1 rounded">{message}</div>}
-
-          {/* Historial */}
-          {history.length > 0 && (
-            <div className="text-xs bg-green-800 p-1 rounded text-white">
-              <strong>Últimos:</strong> {history.join(", ")}
-            </div>
-          )}
-        </div>
-
-        {/* RULETA - derecha */}
-        <div className="w-64 flex flex-col items-center gap-2 bg-gradient-to-b from-yellow-400 to-yellow-500 p-2 rounded-md shadow-lg flex-none">
-          <canvas ref={canvasRef} className="rounded-md w-52 h-52" />
-
-          {/* Fichas rápidas */}
-          <div className="flex flex-wrap gap-1 justify-center">
-            {chipValues.map((v) => (
-              <button
-                key={v}
-                onClick={() => selectChip(v)}
-                disabled={spinning}
-                className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-sm ${
-                  selectedChip === v ? "ring-2 ring-white" : ""
-                } ${v === 1 ? "bg-gray-600" : v === 5 ? "bg-green-600" : v === 10 ? "bg-yellow-500" : v === 25 ? "bg-red-500" : "bg-purple-600"}`}
-              >
-                {v}
-              </button>
-            ))}
-          </div>
-
-          {/* Resultado */}
-          <div className="text-sm font-bold text-gray-900 bg-green-800 px-2 py-1 rounded">{result ?? "-"}</div>
         </div>
       </div>
     </div>

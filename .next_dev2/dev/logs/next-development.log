@@ -1,21 +1,120 @@
-[00:00:01.300] Server  LOG      ✓ Ready in 825ms
-[00:00:10.430] Server  LOG      ○ Compiling / ...
-[00:00:11.645] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:11.954] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:00:11.954] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
-[00:00:11.954] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763318188464}
-[00:00:17.975] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
-[00:00:17.975] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
-[00:00:33.530] Browser WARN    Audio play warning for spin: The element has no supported sources.
-[00:00:33.530] Browser WARN    Audio play warning for ballRoll: The element has no supported sources.
-[00:00:37.539] Browser WARN    Audio play warning for win: The element has no supported sources.
-[00:00:44.306] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:44.487] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:00:44.487] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
-[00:00:44.487] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763318221007}
-[00:02:03.177] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
-[00:02:03.177] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
-[00:02:21.731] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:02:21.912] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:02:21.912] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
-[00:02:21.912] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763318318427}
+[00:00:01.136] Server  LOG      ✓ Ready in 730ms
+[00:00:07.440] Server  ERROR    ⨯ ./components/games/roulette-game.tsx:261:8
+Parsing ecmascript source code failed
+  259 |     if (betItem.type === "column") {
+  260 |       if (numberRes === 0 || numberRes === "00") return false
+> 261 |       </div>
+      |        ^^^^^
+  262 |       <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-gray-900/80 bg-white/60 px-3 py-1.5 rounded-full shadow-inner">
+  263 |         <span className="text-lg">🎡</span>
+  264 |         <span className="tracking-[0.16em] uppercase">Ruleta motivacional</span>
+
+Unterminated regexp literal
+
+Import traces:
+  Client Component Browser:
+    ./components/games/roulette-game.tsx [Client Component Browser]
+    ./components/employee-dashboard.tsx [Client Component Browser]
+    ./app/page.tsx [Client Component Browser]
+    ./app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/games/roulette-game.tsx [Client Component SSR]
+    ./components/employee-dashboard.tsx [Client Component SSR]
+    ./app/page.tsx [Client Component SSR]
+    ./app/page.tsx [Server Component]
+
+
+[00:00:08.744] Browser ERROR   uncaughtError: Error: ./components/games/roulette-game.tsx:261:8
+Parsing ecmascript source code failed
+  259 |     if (betItem.type === "column") {
+  260 |       if (numberRes === 0 || numberRes === "00") return false
+> 261 |       </div>
+      |        ^^^^^
+  262 |       <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-gray-900/80 bg-white/60 px-3 py-1.5 rounded-full shadow-inner">
+  263 |         <span className="text-lg">🎡</span>
+  264 |         <span className="tracking-[0.16em] uppercase">Ruleta motivacional</span>
+
+Unterminated regexp literal
+
+Import traces:
+  Client Component Browser:
+    ./components/games/roulette-game.tsx [Client Component Browser]
+    ./components/employee-dashboard.tsx [Client Component Browser]
+    ./app/page.tsx [Client Component Browser]
+    ./app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/games/roulette-game.tsx [Client Component SSR]
+    ./components/employee-dashboard.tsx [Client Component SSR]
+    ./app/page.tsx [Client Component SSR]
+    ./app/page.tsx [Server Component]
+
+
+[00:00:08.981] Browser ERROR   ./components/games/roulette-game.tsx:261:8
+Parsing ecmascript source code failed
+  259 |     if (betItem.type === "column") {
+  260 |       if (numberRes === 0 || numberRes === "00") return false
+> 261 |       </div>
+      |        ^^^^^
+  262 |       <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-gray-900/80 bg-white/60 px-3 py-1.5 rounded-full shadow-inner">
+  263 |         <span className="text-lg">🎡</span>
+  264 |         <span className="tracking-[0.16em] uppercase">Ruleta motivacional</span>
+
+Unterminated regexp literal
+
+Import traces:
+  Client Component Browser:
+    ./components/games/roulette-game.tsx [Client Component Browser]
+    ./components/employee-dashboard.tsx [Client Component Browser]
+    ./app/page.tsx [Client Component Browser]
+    ./app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/games/roulette-game.tsx [Client Component SSR]
+    ./components/employee-dashboard.tsx [Client Component SSR]
+    ./app/page.tsx [Client Component SSR]
+    ./app/page.tsx [Server Component]
+[00:00:09.244] Browser ERROR   ./components/games/roulette-game.tsx:261:8
+Parsing ecmascript source code failed
+  259 |     if (betItem.type === "column") {
+  260 |       if (numberRes === 0 || numberRes === "00") return false
+> 261 |       </div>
+      |        ^^^^^
+  262 |       <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-gray-900/80 bg-white/60 px-3 py-1.5 rounded-full shadow-inner">
+  263 |         <span className="text-lg">🎡</span>
+  264 |         <span className="tracking-[0.16em] uppercase">Ruleta motivacional</span>
+
+Unterminated regexp literal
+
+Import traces:
+  Client Component Browser:
+    ./components/games/roulette-game.tsx [Client Component Browser]
+    ./components/employee-dashboard.tsx [Client Component Browser]
+    ./app/page.tsx [Client Component Browser]
+    ./app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./components/games/roulette-game.tsx [Client Component SSR]
+    ./components/employee-dashboard.tsx [Client Component SSR]
+    ./app/page.tsx [Client Component SSR]
+    ./app/page.tsx [Server Component]
+[00:00:22.765] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:00:22.765] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:00:22.765] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763335545752}
+[00:00:34.084] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[00:00:34.084] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[00:03:51.008] Server  LOG      ✓ Compiled in 204ms
+[00:04:17.193] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:04:17.193] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:04:17.193] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763335780381}
+[00:04:20.621] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[00:04:20.621] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[00:06:45.100] Server  LOG      ✓ Compiled in 87ms
+[00:08:01.037] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:08:01.037] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:08:01.037] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.5.0","sv":"0.1.3","ts":1763336004235}
+[00:08:04.031] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[00:08:04.031] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[00:09:53.831] Server  LOG      ✓ Compiled in 120ms
+[00:13:04.296] Server  LOG      ✓ Compiled in 91ms

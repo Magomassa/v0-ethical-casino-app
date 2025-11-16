@@ -217,8 +217,55 @@
   transform-origin: bottom center; /* 👈 punto de pivote en la base */
 }
 
-
 .animate-lever-pull {
   animation: lever-pull 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   transform-origin: bottom center;
+}
+
+/* --- Roulette specific styling (solo estética, sin lógica) --- */
+
+.roulette-root {
+  background: radial-gradient(circle at 50% 0, #14592e 0, #06401f 40%, #041b0f 100%);
+}
+
+.roulette-top-panel {
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(0, 0, 0, 0.5) inset;
+}
+
+.roulette-board-card {
+  background: #0c4b26;
+  border-radius: 0.75rem;
+  box-shadow: 0 0 0 2px #f9e29a, 0 0 0 4px #3e2412, 0 10px 20px rgba(0, 0, 0, 0.7);
+}
+
+.roulette-board-grid button {
+  border-radius: 3px;
+  border: 1px solid rgba(0, 0, 0, 0.6);
+}
+
+.roulette-board-grid button:disabled {
+  opacity: 0.85;
+}
+
+.roulette-wheel-panel {
+  background: radial-gradient(circle at 50% 0, #9c6b3b 0, #5b3518 45%, #2e1a0c 100%);
+  box-shadow: 0 0 0 2px #f8e7b0, 0 0 0 5px #2a160b, 0 18px 35px rgba(0, 0, 0, 0.9);
+}
+
+.roulette-wheel-panel canvas {
+  background: radial-gradient(circle at 50% 30%, #2d1a0f 0, #120806 55%, #050302 100%);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.8) inset;
+}
+
+.roulette-chips-row button {
+  border: 2px solid rgba(0, 0, 0, 0.6);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.25) inset;
+}
+
+.roulette-chips-row button span {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.roulette-result-badge {
+  letter-spacing: 0.08em;
 }
