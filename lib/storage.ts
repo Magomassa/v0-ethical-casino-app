@@ -1,19 +1,48 @@
+import { 
+  getAllUsers, 
+  getAllPrizes, 
+  getUserAchievements,
+  getAllAchievementTemplates,
+  getAllRedemptions,
+  getAllMissions,
+  getMissionSubmissions as getFirebaseMissionSubmissions,
+  getUserTransactions,
+  getUserFriendRequests as getFirebaseFriendRequests,
+  getUserFriendships,
+  getUserDonations as getFirebaseDonations,
+  getUserBadges as getFirebaseUserBadges
+} from "./firebase/db"
+
 export interface User {
   id: string
+  name: string
   email: string
   password: string
   role: "employee" | "admin"
   tokens: number
+  department: string
   createdAt: string
+}
+
+export interface AchievementTemplate {
+  id: string
+  title: string
+  description: string
+  reward: number
+  badgeUrl: string
+  platinumRequirement: number
+  category: "esfuerzo" | "productividad" | "aprendizaje" | "innovacion" | "colaboracion"
 }
 
 export interface Achievement {
   id: string
   userId: string
+  templateId: string
   title: string
   description: string
   tokensAwarded: number
   date: string
+  count: number // How many times this achievement has been earned
 }
 
 export interface Prize {
@@ -23,6 +52,9 @@ export interface Prize {
   cost: number
   image: string
   available: boolean
+  discount?: number // Percentage discount (0-100)
+  label?: string // Special label like "Por tiempo limitado"
+  originalCost?: number // Original cost before discount
 }
 
 export interface Redemption {
@@ -35,145 +67,205 @@ export interface Redemption {
   status: "pending" | "completed"
 }
 
-// Initialize demo data
+export interface Mission {
+  id: string
+  title: string
+  type: "curso" | "proyecto" | "voluntariado" | "idea"
+  description: string
+  tokenReward: number
+  evidenceRequired: boolean
+  startAt?: string
+  endAt?: string
+  active: boolean
+  tags: string[]
+  maxPerUser: number
+}
+
+export interface MissionSubmission {
+  id: string
+  missionId: string
+  userId: string
+  evidenceUrl?: string
+  evidenceText?: string
+  status: "pending" | "approved" | "rejected"
+  reviewedBy?: string
+  reviewNotes?: string
+  createdAt: string
+  reviewedAt?: string
+}
+
+export interface Donation {
+  id: string
+  fromUserId: string
+  toUserId: string
+  amount: number
+  date: string
+  weekNumber: number // For weekly limit tracking
+}
+
+export interface Friendship {
+  id: string
+  user1Id: string
+  user2Id: string
+  createdAt: string
+}
+
+export interface UserBadge {
+  userId: string
+  templateId: string
+  rank: "bronze" | "silver" | "gold" | "platinum"
+  count: number
+  earnedAt: string
+}
+
+export interface FriendRequest {
+  id: string
+  fromUserId: string
+  toUserId: string
+  status: "pending" | "accepted" | "rejected"
+  createdAt: string
+}
+
+export type TransactionSource = "mission" | "play" | "admin" | "reward" | "bonus" | "achievement" | "donation"
+
+export interface Transaction {
+  id: string
+  userId: string
+  type: "credit" | "debit"
+  amount: number
+  source: TransactionSource
+  sourceRef?: string
+  description: string
+  date: string
+}
+
+export const getUsers = async (): Promise<User[]> => {
+  return await getAllUsers()
+}
+
+export const saveUsers = async (users: User[]) => {
+  // Firebase saves users individually via updateUser
+  console.warn("[v0] saveUsers is deprecated with Firebase. Use individual user updates instead.")
+}
+
+export const getPrizes = async (): Promise<Prize[]> => {
+  return await getAllPrizes()
+}
+
+export const savePrizes = async (prizes: Prize[]) => {
+  console.warn("[v0] savePrizes is deprecated with Firebase. Use individual prize updates instead.")
+}
+
+export const getAchievements = async (userId?: string): Promise<Achievement[]> => {
+  if (userId) {
+    return await getUserAchievements(userId)
+  }
+  // Get all achievements - need to implement in firebase/db.ts
+  return []
+}
+
+export const saveAchievements = async (achievements: Achievement[]) => {
+  console.warn("[v0] saveAchievements is deprecated with Firebase. Use createAchievement instead.")
+}
+
+export const getRedemptions = async (): Promise<Redemption[]> => {
+  return await getAllRedemptions()
+}
+
+export const saveRedemptions = async (redemptions: Redemption[]) => {
+  console.warn("[v0] saveRedemptions is deprecated with Firebase. Use createRedemption instead.")
+}
+
+export const getMissions = async (): Promise<Mission[]> => {
+  return await getAllMissions()
+}
+
+export const saveMissions = async (missions: Mission[]) => {
+  console.warn("[v0] saveMissions is deprecated with Firebase. Use individual mission updates instead.")
+}
+
+export const getMissionSubmissions = async (missionId?: string): Promise<MissionSubmission[]> => {
+  return await getFirebaseMissionSubmissions(missionId)
+}
+
+export const saveMissionSubmissions = async (submissions: MissionSubmission[]) => {
+  console.warn("[v0] saveMissionSubmissions is deprecated with Firebase. Use createSubmission or updateSubmission instead.")
+}
+
+export const getTransactions = async (userId?: string): Promise<Transaction[]> => {
+  if (userId) {
+    return await getUserTransactions(userId)
+  }
+  return []
+}
+
+export const saveTransactions = async (transactions: Transaction[]) => {
+  console.warn("[v0] saveTransactions is deprecated with Firebase. Use createTransaction instead.")
+}
+
+export const getFriendRequests = async (userId?: string): Promise<FriendRequest[]> => {
+  if (userId) {
+    return await getFirebaseFriendRequests(userId)
+  }
+  return []
+}
+
+export const saveFriendRequests = async (requests: FriendRequest[]) => {
+  console.warn("[v0] saveFriendRequests is deprecated with Firebase.")
+}
+
+export const getFriendships = async (userId?: string): Promise<Friendship[]> => {
+  if (userId) {
+    return await getUserFriendships(userId)
+  }
+  return []
+}
+
+export const saveFriendships = async (friendships: Friendship[]) => {
+  console.warn("[v0] saveFriendships is deprecated with Firebase.")
+}
+
+export const getDonations = async (userId?: string): Promise<Donation[]> => {
+  if (userId) {
+    return await getFirebaseDonations(userId)
+  }
+  return []
+}
+
+export const saveDonations = async (donations: Donation[]) => {
+  console.warn("[v0] saveDonations is deprecated with Firebase.")
+}
+
+export const getAchievementTemplates = async (): Promise<AchievementTemplate[]> => {
+  return await getAllAchievementTemplates()
+}
+
+export const saveAchievementTemplates = async (templates: AchievementTemplate[]) => {
+  console.warn("[v0] saveAchievementTemplates is deprecated with Firebase.")
+}
+
+export const getUserBadges = async (userId?: string): Promise<UserBadge[]> => {
+  if (userId) {
+    return await getFirebaseUserBadges(userId)
+  }
+  return []
+}
+
+export const saveUserBadges = async (badges: UserBadge[]) => {
+  console.warn("[v0] saveUserBadges is deprecated with Firebase.")
+}
+
+export const resetStorage = () => {
+  console.warn("[v0] resetStorage is not supported with Firebase. Use Firebase Console to reset data.")
+}
+
+export const getWeekNumber = (date: Date): number => {
+  const startOfYear = new Date(date.getFullYear(), 0, 1)
+  const diff = date.getTime() - startOfYear.getTime()
+  return Math.floor(diff / (7 * 24 * 60 * 60 * 1000))
+}
+
+// Storage initialization is handled by Firebase. Run seed script if needed.
 export const initializeStorage = () => {
-  if (typeof window === "undefined") return
-
-  // Check if already initialized
-  if (localStorage.getItem("motivaplay_initialized")) return
-
-  // Demo users
-  const users: User[] = [
-    {
-      id: "1",
-      email: "admin@motivaplay.com",
-      password: "admin123",
-      role: "admin",
-      tokens: 10000,
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: "2",
-      email: "empleado@motivaplay.com",
-      password: "empleado123",
-      role: "employee",
-      tokens: 500,
-      createdAt: new Date().toISOString(),
-    },
-  ]
-
-  // Demo prizes
-  const prizes: Prize[] = [
-    {
-      id: "1",
-      name: "Día libre extra",
-      description: "Un día adicional de vacaciones",
-      cost: 1000,
-      image: "/vacation-day-calendar.jpg",
-      available: true,
-    },
-    {
-      id: "2",
-      name: "Almuerzo especial",
-      description: "Almuerzo en restaurante premium",
-      cost: 300,
-      image: "/gourmet-lunch-restaurant.jpg",
-      available: true,
-    },
-    {
-      id: "3",
-      name: "Curso online",
-      description: "Acceso a curso de tu elección",
-      cost: 500,
-      image: "/online-course-learning.jpg",
-      available: true,
-    },
-    {
-      id: "4",
-      name: "Membresía gimnasio",
-      description: "3 meses de membresía",
-      cost: 800,
-      image: "/gym-membership-fitness.jpg",
-      available: true,
-    },
-  ]
-
-  // Demo achievements
-  const achievements: Achievement[] = [
-    {
-      id: "1",
-      userId: "2",
-      title: "Proyecto exitoso",
-      description: "Completó el proyecto Q4 antes de tiempo",
-      tokensAwarded: 200,
-      date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      id: "2",
-      userId: "2",
-      title: "Mentor del mes",
-      description: "Ayudó a 5 compañeros en su onboarding",
-      tokensAwarded: 150,
-      date: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      id: "3",
-      userId: "2",
-      title: "Innovación",
-      description: "Propuso mejora que aumentó eficiencia 20%",
-      tokensAwarded: 150,
-      date: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-  ]
-
-  localStorage.setItem("motivaplay_users", JSON.stringify(users))
-  localStorage.setItem("motivaplay_prizes", JSON.stringify(prizes))
-  localStorage.setItem("motivaplay_achievements", JSON.stringify(achievements))
-  localStorage.setItem("motivaplay_redemptions", JSON.stringify([]))
-  localStorage.setItem("motivaplay_initialized", "true")
-}
-
-// Storage helpers
-export const getUsers = (): User[] => {
-  if (typeof window === "undefined") return []
-  const data = localStorage.getItem("motivaplay_users")
-  return data ? JSON.parse(data) : []
-}
-
-export const saveUsers = (users: User[]) => {
-  if (typeof window === "undefined") return
-  localStorage.setItem("motivaplay_users", JSON.stringify(users))
-}
-
-export const getPrizes = (): Prize[] => {
-  if (typeof window === "undefined") return []
-  const data = localStorage.getItem("motivaplay_prizes")
-  return data ? JSON.parse(data) : []
-}
-
-export const savePrizes = (prizes: Prize[]) => {
-  if (typeof window === "undefined") return
-  localStorage.setItem("motivaplay_prizes", JSON.stringify(prizes))
-}
-
-export const getAchievements = (): Achievement[] => {
-  if (typeof window === "undefined") return []
-  const data = localStorage.getItem("motivaplay_achievements")
-  return data ? JSON.parse(data) : []
-}
-
-export const saveAchievements = (achievements: Achievement[]) => {
-  if (typeof window === "undefined") return
-  localStorage.setItem("motivaplay_achievements", JSON.stringify(achievements))
-}
-
-export const getRedemptions = (): Redemption[] => {
-  if (typeof window === "undefined") return []
-  const data = localStorage.getItem("motivaplay_redemptions")
-  return data ? JSON.parse(data) : []
-}
-
-export const saveRedemptions = (redemptions: Redemption[]) => {
-  if (typeof window === "undefined") return
-  localStorage.setItem("motivaplay_redemptions", JSON.stringify(redemptions))
+  console.log("[v0] Storage initialization is handled by Firebase. Run seed script if needed.")
 }
