@@ -33,9 +33,11 @@ import {
   updateAchievementTemplate,
   updateUser,
   createTransaction,
+  getUserTransactions,
 } from "@/lib/firebase/db"
-import type { Prize, Achievement, User, AchievementTemplate, Redemption } from "@/lib/storage"
-import { Users, Gift, Trophy, Plus, History, Target, Edit, Settings } from 'lucide-react'
+import type { Prize, Achievement, User, AchievementTemplate, Redemption, Transaction } from "@/lib/storage"
+import { Users, Gift, Trophy, LogOut, Plus, Sparkles, History, Target, Edit, Settings, Pencil } from 'lucide-react'
+import { ThemeToggle } from "./theme-toggle"
 import { AdminMissions } from "./missions/admin-missions"
 
 export function AdminDashboard({ user: adminUser, onLogout }: { user: User; onLogout: () => void }) {
@@ -52,6 +54,20 @@ export function AdminDashboard({ user: adminUser, onLogout }: { user: User; onLo
   const [editingTemplate, setEditingTemplate] = useState<AchievementTemplate | null>(null)
   const [activeTab, setActiveTab] = useState("employees")
   const [loading, setLoading] = useState(true)
+  const [isMCPModalOpen, setIsMCPModalOpen] = useState(false)
+  type MCPResponse = {
+    respuesta_mcp?: {
+      saludo: string
+      resumen: string
+      estadisticas: {
+        partidas: number
+        balance: number
+        ratio_ganancias: number
+      }
+      recomendaciones: string[]
+    }
+  }
+  const [mcp, setMcp] = useState<MCPResponse>({})
 
   useEffect(() => {
     const loadData = async () => {
@@ -81,7 +97,68 @@ export function AdminDashboard({ user: adminUser, onLogout }: { user: User; onLo
       }
     }
     loadData()
-  }, [])
+  }, []);
+  useEffect(() => {
+    console.log('MCP updated:', mcp);
+    if (mcp && Object.keys(mcp).length > 0) {
+      setIsMCPModalOpen(true);
+    }
+  }, [mcp]);
+
+  const buildMcpFromTransactions = (employee: User | undefined, transactions: Transaction[]): MCPResponse => {
+    const credits = transactions.filter((t) => t.type === "credit")
+    const debits = transactions.filter((t) => t.type === "debit")
+    const totalCredits = credits.reduce((sum, t) => sum + t.amount, 0)
+    const totalDebits = debits.reduce((sum, t) => sum + t.amount, 0)
+    const balance = totalCredits - totalDebits
+    const totalVolume = totalCredits + totalDebits
+    const ratio = totalVolume === 0 ? 0 : totalCredits / totalVolume
+
+    const recomendaciones: string[] = []
+    if (transactions.length === 0) {
+      recomendaciones.push("El empleado todavía no registra transacciones. Incentiva su participación con misiones.")
+    } else {
+      if (ratio < 0.5) {
+        recomendaciones.push("Revisa misiones u objetivos que ayuden a mejorar el ratio de ganancias.")
+      } else {
+        recomendaciones.push("Mantén el seguimiento: el desempeño es sólido y equilibrado.")
+      }
+      if (balance < 0) {
+        recomendaciones.push("Considera otorgar fichas adicionales o coaching para equilibrar el balance.")
+      } else {
+        recomendaciones.push("Puedes proponer metas más retadoras para aprovechar el balance positivo.")
+      }
+    }
+
+    return {
+      respuesta_mcp: {
+        saludo: `Hola ${employee?.name ?? "equipo"}`,
+        resumen:
+          transactions.length === 0
+            ? "Aún no se registran movimientos para este empleado."
+            : `${employee?.name ?? "El empleado"} tiene ${transactions.length} transacciones registradas con un balance actual de ${balance} fichas.`,
+        estadisticas: {
+          partidas: transactions.length,
+          balance,
+          ratio_ganancias: ratio,
+        },
+        recomendaciones,
+      },
+    }
+  }
+
+  const consultaMCPEmployee = async (employeeId: string) => {
+    try {
+      const transactions = await getUserTransactions(employeeId)
+      const employee = users.find((u) => u.id === employeeId)
+      const data = buildMcpFromTransactions(employee, transactions)
+      setMcp(data)
+      return data
+    } catch (error) {
+      console.error("Error fetching employee transactions:", error)
+      throw error
+    }
+  }
 
   const handleLogout = async () => {
     await logout()
@@ -215,6 +292,8 @@ export function AdminDashboard({ user: adminUser, onLogout }: { user: User; onLo
 
   if (!adminUser || adminUser.role !== "admin") return null
 
+
+
   return (
     <div className="min-h-screen">
       <main className="container mx-auto px-4 py-8 space-y-8">
@@ -263,20 +342,38 @@ export function AdminDashboard({ user: adminUser, onLogout }: { user: User; onLo
                   {users
                     .filter((u) => u.role === "employee")
                     .map((employee) => (
-                      <div key={employee.id} className="flex items-center justify-between p-4 bg-accent rounded-lg">
+                      <div
+                        key={employee.id}
+                        className="flex items-center justify-between p-4 bg-accent rounded-lg"
+                      >
+                        {/* Información del usuario */}
                         <div>
                           <h3 className="font-semibold">{employee.name}</h3>
                           <p className="text-sm text-muted-foreground">
                             {employee.email} - {employee.department}
                           </p>
                         </div>
-                        <Badge variant="secondary" className="text-base px-4 py-2">
-                          {employee.tokens} fichas
-                        </Badge>
+
+                        {/* Botón + Fichas alineados correctamente */}
+                        <div className="flex items-center gap-4">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => consultaMCPEmployee(employee.id)}
+                          >
+                            <Pencil className="h-4 w-4 mr-2" />
+                            Consultar MCP
+                          </Button>
+
+                          <Badge variant="secondary" className="text-base px-4 py-2">
+                            {employee.tokens} fichas
+                          </Badge>
+                        </div>
                       </div>
                     ))}
                 </div>
               </CardContent>
+
             </Card>
           </TabsContent>
 
@@ -574,6 +671,61 @@ export function AdminDashboard({ user: adminUser, onLogout }: { user: User; onLo
           </TabsContent>
         </Tabs>
       </main>
+
+    {/* MCP Modal - Add this right before the closing </div> of the main return */}
+    <Dialog open={isMCPModalOpen} onOpenChange={setIsMCPModalOpen}>
+      <DialogContent className="sm:max-w-[625px]">
+        <DialogHeader>
+          <DialogTitle>Detalles de Transacciones MCP</DialogTitle>
+          <DialogDescription>
+            Información detallada de las transacciones del empleado
+          </DialogDescription>
+        </DialogHeader>
+
+<div className="max-h-[70vh] overflow-y-auto">
+  {mcp?.respuesta_mcp ? (
+    <div className="space-y-4">
+      <div className="rounded-lg bg-white p-6 shadow-md dark:bg-gray-800">
+        <h3 className="mb-4 text-xl font-bold">{mcp.respuesta_mcp.saludo}</h3>
+        
+        <div className="mb-6 rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
+          <p className="text-blue-800 dark:text-blue-200">{mcp.respuesta_mcp.resumen}</p>
+        </div>
+
+        <div className="mb-6">
+          <h4 className="mb-2 text-lg font-semibold">Estadísticas:</h4>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-700/50">
+              <p className="text-sm text-gray-500 dark:text-gray-400">Partidas</p>
+              <p className="text-xl font-bold">{mcp.respuesta_mcp.estadisticas.partidas}</p>
+            </div>
+            <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-700/50">
+              <p className="text-sm text-gray-500 dark:text-gray-400">Balance</p>
+              <p className="text-xl font-bold">{mcp.respuesta_mcp.estadisticas.balance}</p>
+            </div>
+            <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-700/50">
+              <p className="text-sm text-gray-500 dark:text-gray-400">Ratio de Ganancias</p>
+              <p className="text-xl font-bold">{(mcp.respuesta_mcp.estadisticas.ratio_ganancias * 100).toFixed(0)}%</p>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h4 className="mb-2 text-lg font-semibold">Recomendaciones:</h4>
+          <ul className="list-disc space-y-2 pl-5">
+            {mcp.respuesta_mcp.recomendaciones.map((rec, index) => (
+              <li key={index} className="text-gray-700 dark:text-gray-300">{rec}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  ) : (
+    <p>No hay datos de transacciones disponibles</p>
+  )}
+</div>
+      </DialogContent>
+    </Dialog>      
 
       {/* Edit Prize Dialog */}
       <Dialog open={editPrizeDialog} onOpenChange={setEditPrizeDialog}>
