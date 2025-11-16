@@ -1,31 +1,45 @@
-"use client"
+'use client'
 
-import { useEffect, useState } from "react"
-import { AuthForm } from "@/components/auth-form"
-import { EmployeeDashboard } from "@/components/employee-dashboard"
-import { AdminDashboard } from "@/components/admin-dashboard"
-import { getCurrentUser } from "@/lib/auth"
-import { initializeStorage } from "@/lib/storage"
+import { useState, useEffect } from 'react'
+import { onAuthChange } from '@/lib/auth'
+import type { User } from '@/lib/storage'
+import { EmployeeDashboard } from '@/components/employee-dashboard'
+import { AdminDashboard } from '@/components/admin-dashboard'
+import { AuthForm } from '@/components/auth-form'
 
 export default function Home() {
-  const [user, setUser] = useState(getCurrentUser())
-  const [isClient, setIsClient] = useState(false)
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    setIsClient(true)
-    initializeStorage()
-    setUser(getCurrentUser())
+    const unsubscribe = onAuthChange((currentUser) => {
+      setUser(currentUser)
+      setLoading(false)
+    })
+
+    const timeout = setTimeout(() => {
+      setLoading(false)
+    }, 5000)
+
+    return () => {
+      clearTimeout(timeout)
+      unsubscribe()
+    }
   }, [])
 
-  if (!isClient) return null
+  const refreshUser = () => {
+    setLoading(true)
+  }
+
+
 
   if (!user) {
-    return <AuthForm onSuccess={() => setUser(getCurrentUser())} />
+    return <AuthForm onSuccess={refreshUser} />
   }
 
-  if (user.role === "admin") {
-    return <AdminDashboard />
-  }
-
-  return <EmployeeDashboard />
+  return user.role === 'admin' ? (
+    <AdminDashboard user={user} onLogout={() => setUser(null)} />
+  ) : (
+    <EmployeeDashboard user={user} onLogout={() => setUser(null)} />
+  )
 }
