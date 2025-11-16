@@ -6,6 +6,10 @@
 # next.js
 /.next/
 /out/
+.next/
+.next*/
+.next_dev*/
+
 
 # production
 /build
