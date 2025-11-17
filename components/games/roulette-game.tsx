@@ -154,7 +154,8 @@ export function RouletteGame({
 
     const centerX = displayWidth / 2
     const centerY = displayHeight / 2
-    const radius = Math.min(displayWidth, displayHeight) / 2 - 18
+    const desiredRadius = Math.min(displayWidth, displayHeight) / 2 - 18
+    const radius = Math.max(40, desiredRadius)
 
     ctx.clearRect(0, 0, displayWidth, displayHeight)
 
@@ -348,8 +349,10 @@ export function RouletteGame({
       <div className="flex flex-1 w-full max-w-6xl flex-col gap-3 px-1 overflow-hidden">
         <div className="flex flex-1 gap-3 overflow-hidden">
           {/* RULETA - izquierda */}
-          <div className="roulette-wheel-panel w-80 flex flex-col items-center gap-3 p-3 rounded-md flex-none">
-            <canvas ref={canvasRef} className="rounded-md w-64 h-64" />
+          <div className="roulette-wheel-panel flex flex-col items-center gap-4 p-4 rounded-2xl flex-none">
+            <div className="roulette-wheel-inner">
+              <canvas ref={canvasRef} className="rounded-full" />
+            </div>
 
             {/* Resultado */}
             <div className="roulette-result-badge text-sm font-bold text-gray-900 bg-green-800 px-3 py-1 rounded">
@@ -437,7 +440,7 @@ export function RouletteGame({
                         )
                       }
                       disabled={spinning}
-                      className={`h-6 rounded-sm font-semibold ${baseColor} ${isSelected ? "ring-2 ring-yellow-300" : ""} ${isWinner ? "animate-pulse" : ""}`}
+                      className={`h-6 rounded-sm font-semibold transition-all duration-150 ${baseColor} ${isSelected ? "roulette-number-selected" : ""} ${isWinner ? "animate-pulse" : ""}`}
                     >
                       {num}
                     </button>
@@ -459,7 +462,7 @@ export function RouletteGame({
                         )
                       }
                       disabled={spinning}
-                      className={`h-6 rounded-sm font-semibold ${baseColor} ${isSelected ? "ring-2 ring-yellow-300" : ""} ${isWinner ? "animate-pulse" : ""}`}
+                      className={`h-6 rounded-sm font-semibold transition-all duration-150 ${baseColor} ${isSelected ? "roulette-number-selected" : ""} ${isWinner ? "animate-pulse" : ""}`}
                     >
                       {num}
                     </button>
@@ -481,7 +484,7 @@ export function RouletteGame({
                         )
                       }
                       disabled={spinning}
-                      className={`h-6 rounded-sm font-semibold ${baseColor} ${isSelected ? "ring-2 ring-yellow-300" : ""} ${isWinner ? "animate-pulse" : ""}`}
+                      className={`h-6 rounded-sm font-semibold transition-all duration-150 ${baseColor} ${isSelected ? "roulette-number-selected" : ""} ${isWinner ? "animate-pulse" : ""}`}
                     >
                       {num}
                     </button>
