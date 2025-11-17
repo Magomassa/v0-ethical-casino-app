@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { Toaster } from "@/components/ui/toaster"
 import { HeaderBar } from "@/components/header-bar"
+import { Footer } from "@/components/footer"
 import "./globals.css"
 
 const _geist = Geist({ subsets: ["latin"] })
@@ -56,6 +57,7 @@ export default function RootLayout({
           </main>
           <Toaster />
           <Analytics />
+          <Footer />
         </div>
       </body>
     </html>
