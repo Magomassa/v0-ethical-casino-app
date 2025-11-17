@@ -148,12 +148,6 @@ export function AuthForm({ onSuccess }: { onSuccess: () => void }) {
                   {loading ? "Iniciando sesión..." : "Iniciar sesión"}
                 </Button>
               </form>
-              <div className="mt-4 p-3 bg-muted rounded-lg text-sm space-y-1">
-                <p className="font-medium">Credenciales Demo:</p>
-                <p>Admin: admin@motivaplay.com / admin123</p>
-                <p>Empleado: empleado@motivaplay.com / empleado123</p>
-                <p>Amiga: amiga@motivaplay.com / amiga123</p>
-              </div>
             </TabsContent>
 
             <TabsContent value="register">
