@@ -134,12 +134,12 @@ export function BlackjackGame({
   )
 
   return (
-    <div className="h-full bg-gradient-to-br from-green-800 to-green-900 p-4 md:p-6 text-white flex items-center justify-center">
-      <div className="max-w-6xl w-full mx-auto grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-6">
+    <div className="max-h-[80vh] overflow-y-auto bg-gradient-to-br from-green-800 to-green-900 p-3 md:p-6 text-white">
+      <div className="max-w-5xl w-full mx-auto grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-4 md:gap-6">
         {/* MAIN GAME AREA */}
         <div className="flex flex-col justify-center">
           {/* Dealer */}
-          <div className="bg-black/30 rounded-xl p-6 mb-6">
+          <div className="bg-black/30 rounded-xl p-4 md:p-6 mb-4 md:mb-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">Dealer</h2>
               <div className="bg-black/50 px-3 py-1 rounded-full text-sm font-mono">
@@ -163,7 +163,7 @@ export function BlackjackGame({
           </div>
 
           {/* Player */}
-          <div className="bg-black/30 rounded-xl p-6">
+          <div className="bg-black/30 rounded-xl p-4 md:p-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">Jugador</h2>
               <div className="bg-black/50 px-3 py-1 rounded-full text-sm font-mono">
@@ -177,7 +177,7 @@ export function BlackjackGame({
         </div>
 
         {/* SIDE PANEL (Apuesta + Controles) */}
-        <div className="flex flex-col space-y-6">
+        <div className="flex flex-col space-y-4 md:space-y-6">
           {/* Apuesta y saldo */}
           <div className="bg-black/30 p-4 rounded-xl">
             <div className="flex items-center space-x-3 mb-4">
@@ -260,23 +260,23 @@ export function BlackjackGame({
                 <Button
                   onClick={startGame}
                   disabled={bet > currentTokens || bet < 1}
-                  className="w-full bg-green-600 hover:bg-green-700 py-6 text-lg"
+                  className="w-full bg-green-600 hover:bg-green-700 py-4 md:py-6 text-base md:text-lg"
                 >
                   Apostar
                 </Button>
               </div>
             ) : !gameOver ? (
-              <div className="grid grid-cols-2 gap-3">
-                <Button onClick={hit} className="bg-red-600 hover:bg-red-700 py-6 text-lg">
+              <div className="grid grid-cols-2 gap-2 md:gap-3">
+                <Button onClick={hit} className="bg-red-600 hover:bg-red-700 py-4 md:py-6 text-base md:text-lg">
                   Pedir
                 </Button>
-                <Button onClick={stand} className="bg-red-600 hover:bg-red-700 py-6 text-lg">
+                <Button onClick={stand} className="bg-red-600 hover:bg-red-700 py-4 md:py-6 text-base md:text-lg">
                   Plantarse
                 </Button>
-                <Button className="bg-yellow-600 hover:bg-yellow-700 py-6 text-lg">
+                <Button className="bg-yellow-600 hover:bg-yellow-700 py-4 md:py-6 text-base md:text-lg">
                   Doblar
                 </Button>
-                <Button disabled className="bg-gray-800 text-gray-400 py-6 text-lg">
+                <Button disabled className="bg-gray-800 text-gray-400 py-4 md:py-6 text-base md:text-lg">
                   Dividir
                 </Button>
               </div>
@@ -284,11 +284,11 @@ export function BlackjackGame({
               <div className="grid grid-cols-2 gap-3">
                 <Button
                   onClick={() => setGameStarted(false)}
-                  className="bg-blue-600 hover:bg-blue-700 py-6 text-lg"
+                  className="bg-blue-600 hover:bg-blue-700 py-4 md:py-6 text-base md:text-lg"
                 >
                   Nueva Ronda
                 </Button>
-                <Button onClick={onClose} variant="outline" className="py-6 text-lg bg-gray-800 hover:bg-gray-700 text-white hover:text-white border-gray-600">
+                <Button onClick={onClose} variant="outline" className="py-4 md:py-6 text-base md:text-lg bg-gray-800 hover:bg-gray-700 text-white hover:text-white border-gray-600">
                   Cerrar
                 </Button>
               </div>

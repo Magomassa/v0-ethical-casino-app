@@ -338,18 +338,18 @@ export function RouletteGame({
   const isNumberSelected = (n: number) => selectedBets.some((b) => b.type === "number" && b.value === n)
 
   return (
-    <div className="roulette-root flex flex-col items-center justify-start gap-2 h-screen w-full p-2 overflow-hidden">
+    <div className="roulette-root flex flex-col items-center justify-start gap-2 w-full p-2 max-h-[80vh] overflow-y-auto">
       {/* Panel superior con fichas del jugador */}
       <div className="roulette-top-panel w-full bg-gradient-to-r from-yellow-600 to-yellow-500 rounded-md p-2 text-center">
         <div className="text-xs font-semibold text-gray-900">FICHAS DISPONIBLES</div>
         <div className="text-lg md:text-xl font-bold text-gray-900">{tokens}</div>
       </div>
 
-      {/* Contenedor principal: ruleta (izq) + tablero (der) */}
+      {/* Contenedor principal: ruleta + tablero */}
       <div className="flex flex-1 w-full max-w-6xl flex-col gap-3 px-1 overflow-hidden">
-        <div className="flex flex-1 gap-3 overflow-hidden">
-          {/* RULETA - izquierda */}
-          <div className="roulette-wheel-panel flex flex-col items-center gap-4 p-4 rounded-2xl flex-none">
+        <div className="flex flex-col md:flex-row flex-1 gap-3 overflow-hidden">
+          {/* RULETA */}
+          <div className="roulette-wheel-panel flex flex-col items-center gap-4 p-4 rounded-2xl md:flex-1">
             <div className="roulette-wheel-inner">
               <canvas ref={canvasRef} className="rounded-full" />
             </div>
@@ -360,8 +360,8 @@ export function RouletteGame({
             </div>
           </div>
 
-          {/* TABLERO - derecha */}
-          <div className="flex-1 flex flex-col gap-2 overflow-hidden">
+          {/* TABLERO */}
+          <div className="flex-1 flex flex-col gap-2 overflow-hidden mt-2 md:mt-0">
             {/* Botones de apuestas externas */}
             <Card className="roulette-board-card p-1 border-yellow-600">
               <div className="grid grid-cols-3 gap-1 text-[11px]">

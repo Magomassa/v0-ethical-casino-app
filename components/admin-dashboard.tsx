@@ -53,6 +53,7 @@ export function AdminDashboard({ user: adminUser, onLogout }: { user: User; onLo
   const [editingPrize, setEditingPrize] = useState<Prize | null>(null)
   const [editingTemplate, setEditingTemplate] = useState<AchievementTemplate | null>(null)
   const [activeTab, setActiveTab] = useState("employees")
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [loading, setLoading] = useState(true)
   const [isMCPModalOpen, setIsMCPModalOpen] = useState(false)
   type MCPResponse = {
@@ -282,6 +283,11 @@ export function AdminDashboard({ user: adminUser, onLogout }: { user: User; onLo
     }
   }
 
+  const handleTabChange = (value: string) => {
+    setActiveTab(value)
+    setIsMenuOpen(false)
+  }
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -297,33 +303,46 @@ export function AdminDashboard({ user: adminUser, onLogout }: { user: User; onLo
   return (
     <div className="min-h-screen">
       <main className="container mx-auto px-4 py-8 space-y-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="employees" className="gap-2">
-              <Users className="h-4 w-4" />
-              Empleados
-            </TabsTrigger>
-            <TabsTrigger value="missions" className="gap-2">
-              <Target className="h-4 w-4" />
-              Misiones
-            </TabsTrigger>
-            <TabsTrigger value="templates" className="gap-2">
-              <Settings className="h-4 w-4" />
-              Plantillas
-            </TabsTrigger>
-            <TabsTrigger value="achievements" className="gap-2">
-              <Trophy className="h-4 w-4" />
-              Logros
-            </TabsTrigger>
-            <TabsTrigger value="prizes" className="gap-2">
-              <Gift className="h-4 w-4" />
-              Premios
-            </TabsTrigger>
-            <TabsTrigger value="history" className="gap-2">
-              <History className="h-4 w-4" />
-              Historial
-            </TabsTrigger>
-          </TabsList>
+        <div className="flex items-center justify-between md:hidden mb-4">
+          <span className="font-semibold">Menú</span>
+          <button
+            type="button"
+            className="inline-flex items-center rounded-md border px-3 py-2 text-sm bg-background"
+            onClick={() => setIsMenuOpen((prev) => !prev)}
+          >
+            {isMenuOpen ? "Cerrar" : "Abrir"}
+          </button>
+        </div>
+
+        <Tabs value={activeTab} onValueChange={handleTabChange}>
+          <div className={`mb-4 ${isMenuOpen ? "block" : "hidden"} md:block`}>
+            <TabsList className="w-full flex flex-col gap-2 h-auto md:grid md:grid-cols-6 md:h-9">
+              <TabsTrigger value="employees" className="gap-2">
+                <Users className="h-4 w-4" />
+                Empleados
+              </TabsTrigger>
+              <TabsTrigger value="missions" className="gap-2">
+                <Target className="h-4 w-4" />
+                Misiones
+              </TabsTrigger>
+              <TabsTrigger value="templates" className="gap-2">
+                <Settings className="h-4 w-4" />
+                Plantillas
+              </TabsTrigger>
+              <TabsTrigger value="achievements" className="gap-2">
+                <Trophy className="h-4 w-4" />
+                Logros
+              </TabsTrigger>
+              <TabsTrigger value="prizes" className="gap-2">
+                <Gift className="h-4 w-4" />
+                Premios
+              </TabsTrigger>
+              <TabsTrigger value="history" className="gap-2">
+                <History className="h-4 w-4" />
+                Historial
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           {/* Employees Tab Content */}
           <TabsContent value="employees">
@@ -344,7 +363,7 @@ export function AdminDashboard({ user: adminUser, onLogout }: { user: User; onLo
                     .map((employee) => (
                       <div
                         key={employee.id}
-                        className="flex items-center justify-between p-4 bg-accent rounded-lg"
+                        className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between p-4 bg-accent rounded-lg"
                       >
                         {/* Información del usuario */}
                         <div>
@@ -355,17 +374,18 @@ export function AdminDashboard({ user: adminUser, onLogout }: { user: User; onLo
                         </div>
 
                         {/* Botón + Fichas alineados correctamente */}
-                        <div className="flex items-center gap-4">
+                        <div className="flex flex-col gap-2 w-full sm:flex-row sm:items-center sm:justify-between md:w-auto md:justify-end">
                           <Button
                             variant="outline"
                             size="sm"
+                            className="text-xs px-3 py-1 w-full sm:w-auto justify-center"
                             onClick={() => consultaMCPEmployee(employee.id)}
                           >
-                            <Pencil className="h-4 w-4 mr-2" />
+                            <Pencil className="h-4 w-4 mr-1" />
                             Consultar MCP
                           </Button>
 
-                          <Badge variant="secondary" className="text-base px-4 py-2">
+                          <Badge variant="secondary" className="px-3 py-1 text-sm w-full text-center sm:w-auto">
                             {employee.tokens} fichas
                           </Badge>
                         </div>

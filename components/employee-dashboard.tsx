@@ -33,6 +33,7 @@ export function EmployeeDashboard({ user: initialUser, onLogout }: { user: User;
   const [gameDialogOpen, setGameDialogOpen] = useState(false)
   const [selectedGame, setSelectedGame] = useState<"slots" | "blackjack" | "roulette" | null>(null)
   const [activeTab, setActiveTab] = useState("games")
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -52,6 +53,11 @@ export function EmployeeDashboard({ user: initialUser, onLogout }: { user: User;
     }
     loadData()
   }, [user.id])
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value)
+    setIsMenuOpen(false)
+  }
 
   const handleLogout = async () => {
     await logout()
@@ -133,37 +139,50 @@ export function EmployeeDashboard({ user: initialUser, onLogout }: { user: User;
         {/* AI Motivator */}
         <AIMotivator userName={user.name} tokens={user.tokens} />
 
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-7">
-            <TabsTrigger value="games" className="gap-2">
-              <Gamepad2 className="h-4 w-4" />
-              Juegos
-            </TabsTrigger>
-            <TabsTrigger value="missions" className="gap-2">
-              <Target className="h-4 w-4" />
-              Misiones
-            </TabsTrigger>
-            <TabsTrigger value="friends" className="gap-2">
-              <Users className="h-4 w-4" />
-              Amigos
-            </TabsTrigger>
-            <TabsTrigger value="rankings" className="gap-2">
-              <TrendingUp className="h-4 w-4" />
-              Rankings
-            </TabsTrigger>
-            <TabsTrigger value="badges" className="gap-2">
-              <Award className="h-4 w-4" />
-              Insignias
-            </TabsTrigger>
-            <TabsTrigger value="prizes" className="gap-2">
-              <Gift className="h-4 w-4" />
-              Premios
-            </TabsTrigger>
-            <TabsTrigger value="achievements" className="gap-2">
-              <Trophy className="h-4 w-4" />
-              Historial
-            </TabsTrigger>
-          </TabsList>
+        <div className="flex items-center justify-between md:hidden mb-4">
+          <span className="font-semibold">Menú</span>
+          <button
+            type="button"
+            className="inline-flex items-center rounded-md border px-3 py-2 text-sm bg-background"
+            onClick={() => setIsMenuOpen((prev) => !prev)}
+          >
+            {isMenuOpen ? "Cerrar" : "Abrir"}
+          </button>
+        </div>
+
+        <Tabs value={activeTab} onValueChange={handleTabChange}>
+          <div className={`mb-4 ${isMenuOpen ? "block" : "hidden"} md:block`}>
+            <TabsList className="w-full flex flex-col gap-2 h-auto md:grid md:grid-cols-7 md:h-9">
+              <TabsTrigger value="games" className="gap-2">
+                <Gamepad2 className="h-4 w-4" />
+                Juegos
+              </TabsTrigger>
+              <TabsTrigger value="missions" className="gap-2">
+                <Target className="h-4 w-4" />
+                Misiones
+              </TabsTrigger>
+              <TabsTrigger value="friends" className="gap-2">
+                <Users className="h-4 w-4" />
+                Amigos
+              </TabsTrigger>
+              <TabsTrigger value="rankings" className="gap-2">
+                <TrendingUp className="h-4 w-4" />
+                Rankings
+              </TabsTrigger>
+              <TabsTrigger value="badges" className="gap-2">
+                <Award className="h-4 w-4" />
+                Insignias
+              </TabsTrigger>
+              <TabsTrigger value="prizes" className="gap-2">
+                <Gift className="h-4 w-4" />
+                Premios
+              </TabsTrigger>
+              <TabsTrigger value="achievements" className="gap-2">
+                <Trophy className="h-4 w-4" />
+                Historial
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           {/* Games Tab Content */}
           <TabsContent value="games" className="space-y-6">

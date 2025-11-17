@@ -25,15 +25,15 @@ export function HeaderBar() {
 
   return (
     <header className="sticky top-0 z-40 backdrop-blur-md border-b border-[var(--border)]/60">
-      <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
+      <div className="mx-auto max-w-6xl px-4 py-3 flex flex-wrap items-center justify-between gap-3">
         <a href="/" className="flex items-center gap-3">
           {/* Desktop: título PNG (fallback a SVG) */}
           <div className="hidden md:block" style={{ maxWidth: 'none', width: 'auto' }}>
             <BrandImage 
               name="pngtitulo" 
               alt="MotivaPlay" 
-              className="h-32 w-auto min-h-[8rem] object-contain" 
-              style={{ height: '8rem', maxHeight: 'none' }}
+              className="h-24 w-auto object-contain" 
+              style={{ height: '6rem', maxHeight: 'none' }}
             />
           </div>
           {/* Mobile: ícono */}
@@ -41,7 +41,7 @@ export function HeaderBar() {
             <BrandImage name="pnglogo" alt="MP" className="h-9 w-9" />
           </div>
         </a>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap justify-end">
           {user && (
             <div className="flex items-center gap-3">
               {user.role === "employee" && (

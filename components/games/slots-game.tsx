@@ -72,13 +72,13 @@ export function SlotsGame({
   }, [leverPulled])
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-h-[80vh] overflow-y-auto px-1 pb-2">
       {/* Slot Machine Container */}
       <div className="flex justify-center">
-        <div className="relative w-full max-w-2xl">
+        <div className="relative w-full max-w-sm md:max-w-2xl">
           {/* Slot Machine Body */}
           <div 
-            className="relative rounded-3xl shadow-2xl border-4 p-6"
+            className="relative rounded-3xl shadow-2xl border-4 p-4 md:p-6 overflow-hidden"
             style={{
               backgroundColor: '#7B099A',
               borderColor: 'rgba(123, 9, 154, 0.7)',
@@ -108,7 +108,7 @@ export function SlotsGame({
                       className="flex-1 aspect-square bg-gradient-to-b from-gray-100 to-gray-200 rounded-lg border-2 border-gray-400 flex items-center justify-center shadow-inner overflow-hidden"
                     >
                       <div
-                        className={`text-6xl md:text-7xl transition-all duration-100 ${
+                        className={`text-5xl md:text-7xl transition-all duration-100 ${
                           spinning ? "animate-slot-spin blur-sm" : ""
                         }`}
                       >
@@ -156,7 +156,7 @@ export function SlotsGame({
             </div>
 
             {/* Coin Slot */}
-            <div className="mt-4 bg-gray-300 h-2 rounded-full mx-8 shadow-inner" />
+            <div className="mt-4 bg-gray-300 h-2 rounded-full mx-4 md:mx-8 shadow-inner" />
 
             {/* Result Display */}
             {result && (
@@ -177,14 +177,14 @@ export function SlotsGame({
 
             {/* Control Panel - Integrated into machine */}
             <div 
-              className="mt-6 rounded-2xl p-4"
+              className="mt-6 rounded-2xl p-3 md:p-4"
               style={{
                 background: 'linear-gradient(to bottom, #1e3a5f, #0f1f35)',
                 boxShadow: 'inset 0 2px 10px rgba(0, 0, 0, 0.5), 0 4px 20px rgba(0, 0, 0, 0.3)',
                 border: '2px solid rgba(255, 255, 255, 0.1)',
               }}
             >
-              <div className="flex items-center gap-3 flex-wrap">
+              <div className="flex items-center gap-3 flex-wrap justify-center md:justify-start">
                 {/*Info Buttons */}
                 <div className="flex gap-2">
                   <button
@@ -201,7 +201,7 @@ export function SlotsGame({
 
                 {/* Bet Control */}
                 <div 
-                  className="flex items-center gap-2 px-4 py-2 rounded-full"
+                  className="flex items-center gap-2 px-3 py-2 rounded-full"
                   style={{
                     background: 'linear-gradient(to bottom, #2d1b4e, #1a0f2e)',
                     border: '2px solid rgba(123, 9, 154, 0.5)',
@@ -219,7 +219,7 @@ export function SlotsGame({
                   >
                     −
                   </button>
-                  <div className="px-4 py-1 text-center min-w-[100px]">
+                  <div className="px-3 py-1 text-center min-w-[80px] md:min-w-[100px]">
                     <div className="text-xs text-pink-300/80 font-medium">BET</div>
                     <div className="text-lg font-bold text-pink-400">{bet}</div>
                   </div>
@@ -254,7 +254,7 @@ export function SlotsGame({
                 <button
                   onClick={spin}
                   disabled={spinning || bet > currentTokens}
-                  className="flex-1 px-6 py-3 rounded-xl text-white font-bold text-lg disabled:opacity-50 min-w-[120px]"
+                  className="flex-1 px-4 py-3 rounded-xl text-white font-bold text-base md:text-lg disabled:opacity-50 min-w-[120px]"
                   style={{
                     background: 'linear-gradient(to bottom, #22c55e, #16a34a)',
                     boxShadow: '0 4px 12px rgba(34, 197, 94, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.2)',
