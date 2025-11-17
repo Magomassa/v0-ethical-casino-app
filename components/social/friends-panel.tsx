@@ -24,7 +24,7 @@ import type { User, Friendship, FriendRequest, Donation } from "@/lib/storage"
 import { UserPlus, Users, Gift, Check, X, Coins } from 'lucide-react'
 import { toast } from "@/hooks/use-toast"
 
-const getWeekNumber = (date: Date): number => {
+export const getWeekNumber = (date: Date): number => {
   const firstDayOfYear = new Date(date.getFullYear(), 0, 1)
   const pastDaysOfYear = (date.getTime() - firstDayOfYear.getTime()) / 86400000
   return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7)
