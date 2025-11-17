@@ -13,6 +13,7 @@ const rouletteNumbers = [
 
 const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36]
 const blackNumbers = [2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35]
+const POINTER_ANGLE = -90
 
 // Layout del tablero (3 columnas x 12 filas)
 const tableLayout = [
@@ -48,7 +49,7 @@ export function RouletteGame({
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [rotation, setRotation] = useState(0)
-  const [ballRotation, setBallRotation] = useState(0)
+  const [ballRotation, setBallRotation] = useState(POINTER_ANGLE)
   const [spinning, setSpinning] = useState(false)
   const [bet, setBet] = useState(10)
   const [selectedBets, setSelectedBets] = useState<BetType[]>([])
@@ -277,26 +278,30 @@ export function RouletteGame({
     const spinDuration = 4000
     const startTime = Date.now()
     const startRotation = rotation
-    const startBallRotation = ballRotation
     const totalRotation = 360 * 5 + Math.random() * 360
-    const totalBallRotation = -(360 * 7 + Math.random() * 360)
+    const extraBallTurns = 6 + Math.floor(Math.random() * 3)
+    const totalBallRotation = 360 * extraBallTurns
 
     const animate = () => {
       const elapsed = Date.now() - startTime
       const progress = Math.min(elapsed / spinDuration, 1)
       const easeProgress = 1 - Math.pow(1 - progress, 3)
+      const ballEase = 1 - Math.pow(1 - progress, 1.8)
 
-      setRotation(startRotation + totalRotation * easeProgress)
-      setBallRotation(startBallRotation + totalBallRotation * easeProgress)
+      const currentRotation = startRotation + totalRotation * easeProgress
+      setRotation(currentRotation)
+      setBallRotation(POINTER_ANGLE - totalBallRotation * (1 - ballEase))
 
       if (progress < 1) {
         requestAnimationFrame(animate)
       } else {
         const finalRotation = (startRotation + totalRotation) % 360
         const segmentAngle = 360 / rouletteNumbers.length
-        const normalizedAngle = (360 - finalRotation + 90) % 360
+        const normalizedRotation = ((finalRotation % 360) + 360) % 360
+        const normalizedAngle = (360 - normalizedRotation) % 360
         const index = Math.floor(normalizedAngle / segmentAngle) % rouletteNumbers.length
         const winningNumber = rouletteNumbers[index] as number | "00"
+        setBallRotation(POINTER_ANGLE)
 
         setResult(winningNumber)
         setHistory((h) => [winningNumber, ...h.slice(0, 7)])
@@ -338,7 +343,7 @@ export function RouletteGame({
   const isNumberSelected = (n: number) => selectedBets.some((b) => b.type === "number" && b.value === n)
 
   return (
-    <div className="roulette-root flex flex-col items-center justify-start gap-2 w-full p-2 max-h-[80vh] overflow-y-auto">
+    <div className="roulette-root flex flex-col items-center justify-start gap-3 w-full min-h-screen p-2 sm:p-4 overflow-y-auto">
       {/* Panel superior con fichas del jugador */}
       <div className="roulette-top-panel w-full bg-gradient-to-r from-yellow-600 to-yellow-500 rounded-md p-2 text-center">
         <div className="text-xs font-semibold text-gray-900">FICHAS DISPONIBLES</div>
@@ -346,10 +351,10 @@ export function RouletteGame({
       </div>
 
       {/* Contenedor principal: ruleta + tablero */}
-      <div className="flex flex-1 w-full max-w-6xl flex-col gap-3 px-1 overflow-hidden">
-        <div className="flex flex-col md:flex-row flex-1 gap-3 overflow-hidden">
+      <div className="flex w-full max-w-6xl flex-col gap-3 px-1 sm:px-2">
+        <div className="flex flex-col gap-3 w-full lg:flex-row">
           {/* RULETA */}
-          <div className="roulette-wheel-panel flex flex-col items-center gap-4 p-4 rounded-2xl md:flex-1">
+          <div className="roulette-wheel-panel w-full lg:max-w-[26rem] flex flex-col items-center gap-4 p-4 rounded-2xl">
             <div className="roulette-wheel-inner">
               <canvas ref={canvasRef} className="rounded-full" />
             </div>
@@ -361,9 +366,9 @@ export function RouletteGame({
           </div>
 
           {/* TABLERO */}
-          <div className="flex-1 flex flex-col gap-2 overflow-hidden mt-2 md:mt-0">
+          <div className="flex-1 flex flex-col gap-2 overflow-visible mt-3 lg:mt-0 w-full">
             {/* Botones de apuestas externas */}
-            <Card className="roulette-board-card p-1 border-yellow-600">
+            <Card className="roulette-board-card p-1 border-yellow-600 w-full">
               <div className="grid grid-cols-3 gap-1 text-[11px]">
                 <button
                   onClick={() =>

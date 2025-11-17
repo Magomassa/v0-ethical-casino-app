@@ -290,13 +290,16 @@
   box-shadow: 0 20px 45px rgba(0, 0, 0, 0.9), inset 0 0 25px rgba(0, 0, 0, 0.8);
   padding-top: 2rem;
   padding-bottom: 2rem;
-  width: min(24rem, 92vw);
-  min-width: 18rem;
+  width: min(26rem, 100%);
+  max-width: 100%;
+  min-width: 0;
   isolation: isolate;
 }
 
 .roulette-wheel-inner {
-  width: min(20rem, calc(100% - 2rem));
+  width: min(20rem, 82vw);
+  max-width: 100%;
+  min-width: 0;
   aspect-ratio: 1 / 1;
   display: flex;
   align-items: center;
@@ -306,6 +309,8 @@
 .roulette-wheel-inner canvas {
   width: 100% !important;
   height: 100% !important;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 .roulette-wheel-panel::before {
@@ -337,6 +342,15 @@
   box-shadow: 0 0 0 2px rgba(63, 28, 10, 0.8), 0 0 15px rgba(255, 230, 140, 0.85);
   transform: translateY(-1px) scale(1.06);
   z-index: 1;
+}
+
+@media (max-width: 640px) {
+  .roulette-wheel-panel {
+    padding: 1.25rem;
+  }
+  .roulette-wheel-inner {
+    width: min(90vw, 18rem);
+  }
 }
 
 .roulette-chips-row button {
